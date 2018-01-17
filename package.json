@@ -1,6 +1,6 @@
 {
   "name": "yatta",
-  "version": "0.0.1",
+  "version": "0.0.0-rc.1",
   "description": "A cli tool that manages a local *.bib index for your PDFs",
   "main": "index.js",
   "scripts": {
