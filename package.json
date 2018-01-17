@@ -6,6 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "preferGlobal": true,
+  "bin": {
+    "yatta": "src/index.js"
+  },
+  "pkg": {
+    "scripts": "build/**/*.js",
+    "assets": "views/**/*"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/episodeyang/yatta.git"
@@ -25,5 +33,14 @@
   "bugs": {
     "url": "https://github.com/episodeyang/yatta/issues"
   },
-  "homepage": "https://github.com/episodeyang/yatta#readme"
+  "homepage": "https://github.com/episodeyang/yatta#readme",
+  "devDependencies": {
+    "pkg": "^4.3.0-beta.5"
+  },
+  "dependencies": {
+    "colors": "^1.1.2",
+    "commander": "^2.13.0",
+    "inquirer": "^5.0.0",
+    "progress": "^2.0.0"
+  }
 }
