@@ -1,0 +1,29 @@
+{
+  "name": "yatta",
+  "version": "0.0.1",
+  "description": "A cli tool that manages a local *.bib index for your PDFs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/episodeyang/yatta.git"
+  },
+  "keywords": [
+    "\"bib",
+    "pdf",
+    "LaTeX",
+    "bibTex",
+    "bibliograph",
+    "cli",
+    "machine-learning",
+    "research\""
+  ],
+  "author": "Ge Yang <yangge1987@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/episodeyang/yatta/issues"
+  },
+  "homepage": "https://github.com/episodeyang/yatta#readme"
+}
