@@ -1,5 +1,5 @@
 #!/usr/local/bin/node
-
+// take a look at: https://scotch.io/tutorials/build-an-interactive-command-line-application-with-nodejs
 const program = require('commander');
 const package = require('../package.json');
 
