@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import {curl, simple, update_index, url2fn} from "./utils";
 import {appendFileSync, writeFileSync} from "fs";
 
