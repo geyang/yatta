@@ -30,7 +30,7 @@ async function search(query, options) {
 
     let spinner = ora(`searching google scholar for ${chalk.green(query)}`).start();
     let results = await model.search(query, {limit: entry_limit});
-    let choices = results.map(simple);
+    let choices = results.map(simple).slice(0, entry_limit);
     spinner.stop();
 
     function exit(ch, key) {
