@@ -31,11 +31,19 @@ var search = function () {
                             process.stdin.removeListener('keypress', exit); // complete unnecessary LOL
                         };
 
-                        spinner = ora("searching google scholar for " + chalk.green(query)).start();
-                        _context.next = 4;
-                        return model.search(query, { limit: ENTRIE_LIMIT });
+                        if (!(!options || !options.limit)) {
+                            _context.next = 3;
+                            break;
+                        }
 
-                    case 4:
+                        return _context.abrupt("return", console.log(chalk.red('INTERNAL_ERROR: options.limit is not specified')));
+
+                    case 3:
+                        spinner = ora("searching google scholar for " + chalk.green(query)).start();
+                        _context.next = 6;
+                        return model.search(query, { limit: options.limit });
+
+                    case 6:
                         results = _context.sent;
                         choices = results.map(_utils.simple);
 
@@ -48,10 +56,10 @@ var search = function () {
 
 
                         process.stdin.on('keypress', exit);
-                        _context.next = 11;
+                        _context.next = 13;
                         return prompt;
 
-                    case 11:
+                    case 13:
                         _ref2 = _context.sent;
                         selection = _ref2.selection;
                         i = choices.indexOf(selection);
@@ -80,7 +88,7 @@ var search = function () {
                         //     items: []
                         // })
 
-                    case 18:
+                    case 20:
                     case "end":
                         return _context.stop();
                 }
@@ -114,7 +122,7 @@ var model = require('./model');
 
 var EXIT_KEYS = ["escape", "q"];
 
-var ENTRIE_LIMIT = 10;
+var ENTRIE_LIMIT = 15;
 var search_prompt = {
     message: "Search result from Google Scholar",
     type: "list",
@@ -124,5 +132,5 @@ var search_prompt = {
 
 program.version(package_config.version).option('-d, --directory', 'the directory to apply yatta. Default to ').option('-R, --recursive', 'flag to apply yatta recursively');
 
-program.command('search [query] [options...]').action(search);
+program.command('search [query] [options...]').option('--limit', "limit for the number of results to show on each search", parseInt, ENTRIE_LIMIT).action(search);
 program.parse(process.argv);
