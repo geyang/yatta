@@ -80,7 +80,7 @@ program
     .option('-R, --recursive', 'flag to apply yatta recursively');
 
 program
-    .command('search [query] [options...]')
+    .command('search <query>')
     .option('--limit', "limit for the number of results to show on each search", parseInt, ENTRIE_LIMIT)
     .action(search);
 program
