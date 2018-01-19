@@ -53,7 +53,7 @@ var search = function () {
 
                     case 8:
                         results = _context.sent;
-                        choices = results.map(_utils.simple);
+                        choices = results.map(_utils.simple).slice(0, entry_limit);
 
                         spinner.stop();
 
