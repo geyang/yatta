@@ -15,19 +15,21 @@ const model = require('./model');
 
 const EXIT_KEYS = ["escape", "q"];
 
-const ENTRIE_LIMIT = 15;
-const search_prompt = {
-    message: "Search result from Google Scholar",
-    type: "list",
-    default: 0,
-    pageSize: ENTRIE_LIMIT + 2
-};
+const ENTRY_LIMIT = 15;
 
 async function search(query, options) {
     if (!options || !options.limit)
         return console.log(chalk.red('INTERNAL_ERROR: options.limit is not specified'));
+    const entry_limit = options.limit || ENTRY_LIMIT;
+    const search_prompt = {
+        message: "Search result from Google Scholar",
+        type: "list",
+        default: 0,
+        pageSize: entry_limit + 2
+    };
+
     let spinner = ora(`searching google scholar for ${chalk.green(query)}`).start();
-    let results = await model.search(query, {limit: options.limit});
+    let results = await model.search(query, {limit: entry_limit});
     let choices = results.map(simple);
     spinner.stop();
 
@@ -81,7 +83,7 @@ program
 
 program
     .command('search <query>')
-    .option('--limit', "limit for the number of results to show on each search", parseInt, ENTRIE_LIMIT)
+    .option('--limit <limit>', "limit for the number of results to show on each search", parseInt, ENTRY_LIMIT)
     .action(search);
 program
     .parse(process.argv);
