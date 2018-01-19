@@ -133,5 +133,5 @@ var search_prompt = {
 
 program.version(package_config.version).option('-d, --directory', 'the directory to apply yatta. Default to ').option('-R, --recursive', 'flag to apply yatta recursively');
 
-program.command('search [query] [options...]').option('--limit', "limit for the number of results to show on each search", parseInt, ENTRIE_LIMIT).action(search);
+program.command('search <query>').option('--limit', "limit for the number of results to show on each search", parseInt, ENTRIE_LIMIT).action(search);
 program.parse(process.argv);
