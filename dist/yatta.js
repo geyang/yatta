@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 "use strict";
 
 var _regenerator = require("babel-runtime/regenerator");
