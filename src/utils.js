@@ -40,7 +40,7 @@ export function curl(url, targetPath) {
     request({url, headers: {'User-Agent': USER_AGENT}}).pipe(file);
 }
 
-curl("https://arxiv.org/pdf/1703.01988.pdf", "test.pdf");
+// curl("https://arxiv.org/pdf/1703.01988.pdf", "test.pdf");
 
 
 const DEFAULT_DIR = "./";

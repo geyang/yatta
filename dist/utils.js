@@ -34,6 +34,10 @@ var _chalk = require("chalk");
 
 var _chalk2 = _interopRequireDefault(_chalk);
 
+var _request = require("request");
+
+var _request2 = _interopRequireDefault(_request);
+
 var _url = require("url");
 
 var _path = require("path");
@@ -82,13 +86,18 @@ function url2fn(url) {
     return _path2.default.basename(parsed.pathname);
 }
 
+var USER_AGENT = 'curl/7.52.1';
+// doesn't work with arxiv
+// 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7';
+
 function curl(url, targetPath) {
     var file = _fsExtra2.default.createWriteStream(targetPath);
     url = url.replace(/^https/, "http");
-    _http2.default.get(url, function (response) {
-        return response.pipe(file);
-    });
+    (0, _request2.default)({ url: url, headers: { 'User-Agent': USER_AGENT } }).pipe(file);
 }
+
+// curl("https://arxiv.org/pdf/1703.01988.pdf", "test.pdf");
+
 
 var DEFAULT_DIR = "./";
 var DEFAULT_INDEX = { dir: DEFAULT_DIR };
