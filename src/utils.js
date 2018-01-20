@@ -1,5 +1,6 @@
 /** Created by ge on 1/19/18. */
 import chalk from "chalk";
+import request from "request";
 import {parse as urlParse} from "url";
 import path from "path";
 import http from "http";
@@ -29,12 +30,17 @@ export function url2fn(url) {
     return path.basename(parsed.pathname);
 }
 
+const USER_AGENT = 'curl/7.52.1';
+// doesn't work with arxiv
+// 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7';
 
 export function curl(url, targetPath) {
     const file = fs.createWriteStream(targetPath);
     url = url.replace(/^https/, "http");
-    http.get(url, (response) => response.pipe(file));
+    request({url, headers: {'User-Agent': USER_AGENT}}).pipe(file);
 }
+
+curl("https://arxiv.org/pdf/1703.01988.pdf", "test.pdf");
 
 
 const DEFAULT_DIR = "./";
