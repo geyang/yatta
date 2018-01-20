@@ -81,7 +81,8 @@ export function update_index(indexPath, entry) {
         throw err;
     }
     // todo: use dictionary instead;
-    index.papers = [...(index.papers || []), entry];
+    if (!index.papers) index.papers = [];
+    if (!!entry) index.papers = [...index.papers, entry];
     const content = yaml.safeDump(index, {'sortKeys': true});
     fs.writeFileSync(indexPath, content);
 }

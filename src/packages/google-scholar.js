@@ -9,8 +9,8 @@ let stripTags = require('striptags');
 const RATE_LIMITS = {S: 5, M: 200, D: 1e8};
 
 const RESULTS_PER_PAGE = 10;
-// const USER_AGENT = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7';
-const USER_AGENT = 'curl/7.52.1';
+const USER_AGENT = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7';
+// const USER_AGENT = 'curl/7.52.1';
 const GOOGLE_SCHOLAR_URL = 'https://scholar.google.com/scholar?hl=en&q=';
 const GOOGLE_SCHOLAR_URL_PREFIX = 'https://scholar.google.com';
 
@@ -27,6 +27,8 @@ const STATUS_MESSAGE_BODY = 'This page appears when Google automatically detects
 
 // regex with thanks to http://stackoverflow.com/a/5917250/1449799
 const RESULT_COUNT_RE = /\W*((\d+|\d{1,3}(,\d{3})*)(\.\d+)?) results/;
+const ERR_SEARCH_END = "ERR_SEARCH_END";
+const ERR_SEARCH_HEAD = "ERR_SEARCH_HEAD";
 
 function scholarResultsCallback(resolve, reject) {
     return function (error, response, html) {
@@ -133,7 +135,11 @@ function scholarResultsCallback(resolve, reject) {
                 prevUrl: prevUrl,
                 next: function () {
                     return new Promise(function (resolve, reject) {
-                        if (!nextUrl) reject(new Error('At the end of search.'));
+                        if (!nextUrl) {
+                            let err = new Error('At the end of search');
+                            err.code = ERR_SEARCH_END;
+                            reject(err);
+                        }
                         request({
                             headers: {'User-Agent': USER_AGENT},
                             jar: true, url: nextUrl
@@ -142,7 +148,11 @@ function scholarResultsCallback(resolve, reject) {
                 },
                 previous: function () {
                     return new Promise(function (resolve, reject) {
-                        if (!prevUrl) reject(new Error('At the begining of search, can not go back further.'));
+                        if (!prevUrl) {
+                            let err = new Error('At the begining of search, can not go back further.');
+                            err.code = ERR_SEARCH_HEAD;
+                            reject();
+                        }
                         request({
                             headers: {'User-Agent': USER_AGENT},
                             jar: true, url: prevUrl
@@ -183,10 +193,10 @@ async function search_n(query, limit) {
     let results = [];
     let r = await search(query);
     results.push(...r.results);
-    while (results.length < limit || r.results.length === 0) {
+    while (results.length < limit && r.results.length > 0 && !!r.nextUrl) {
         await sleep(2000);
         r = await r.next();
-        results.push(...r.results)
+        results.push(...r.results);
     }
     return {
         ...r,
