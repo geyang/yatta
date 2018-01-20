@@ -20,6 +20,10 @@ var _promise = require('babel-runtime/core-js/promise');
 
 var _promise2 = _interopRequireDefault(_promise);
 
+var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
+
+var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
+
 /*
 { title: 'Quantifying the loss of compress–forward relaying without Wyner–Ziv coding',
     url: 'http://ieeexplore.ieee.org/abstract/document/4802323/',
@@ -48,7 +52,7 @@ var search_n = function () {
                         results.push.apply(results, (0, _toConsumableArray3.default)(r.results));
 
                     case 5:
-                        if (!(results.length < limit)) {
+                        if (!(results.length < limit || r.results.length === 0)) {
                             _context.next = 14;
                             break;
                         }
@@ -148,10 +152,28 @@ function scholarResultsCallback(resolve, reject) {
                 $(r).find('.gs_ri h3 span').remove();
                 var title = $(r).find('.gs_ri h3').text().trim();
                 var url = $(r).find('.gs_ri h3 a').attr('href');
-                var authorNamesHTMLString = $(r).find('.gs_ri .gs_a').html();
-                var etAl = false;
-                var etAlBegin = false;
-                var authors = [];
+                var authorsString = $(r).find('.gs_ri .gs_a').text();
+
+                var _authorsString$split$ = authorsString.split('- ').map(function (s) {
+                    return s.trim();
+                }),
+                    _authorsString$split$2 = (0, _slicedToArray3.default)(_authorsString$split$, 3),
+                    authors = _authorsString$split$2[0],
+                    journalYear = _authorsString$split$2[1],
+                    website = _authorsString$split$2[2];
+
+                var _journalYear$split = journalYear.split(','),
+                    _journalYear$split2 = (0, _slicedToArray3.default)(_journalYear$split, 2),
+                    journal = _journalYear$split2[0],
+                    year = _journalYear$split2[1];
+
+                authors = authors.split(', ').map(function (a) {
+                    return { name: a };
+                });
+                // let authors = $(r).find('.gs_ri .gs_a a').map((i, e) => ({
+                //     name: e.children[0].data,
+                //     url: e.attribs.href || ""
+                // }));
                 var description = $(r).find('.gs_ri .gs_rs').text();
                 var footerLinks = $(r).find('.gs_ri .gs_fl a');
                 var citedCount = 0;
@@ -174,41 +196,10 @@ function scholarResultsCallback(resolve, reject) {
                         relatedUrl = GOOGLE_SCHOLAR_URL_PREFIX + $(footerLinks[1]).attr('href');
                     }
                 }
-                if (authorNamesHTMLString) {
-                    var cleanString = authorNamesHTMLString.substr(0, authorNamesHTMLString.indexOf(' - '));
-                    if (cleanString.substr(cleanString.length - ELLIPSIS_HTML_ENTITY.length) === ELLIPSIS_HTML_ENTITY) {
-                        etAl = true;
-                        cleanString = cleanString.substr(0, cleanString.length - ELLIPSIS_HTML_ENTITY.length);
-                    }
-                    if (cleanString.substr(0, ELLIPSIS_HTML_ENTITY.length) === ELLIPSIS_HTML_ENTITY) {
-                        etAlBegin = true;
-                        cleanString = cleanString.substr(ELLIPSIS_HTML_ENTITY.length + 2);
-                    }
-                    var htmlAuthorNames = cleanString.split(', ');
-                    if (etAl) {
-                        htmlAuthorNames.push(ET_AL_NAME);
-                    }
-                    if (etAlBegin) {
-                        htmlAuthorNames.unshift(ET_AL_NAME);
-                    }
-                    authors = htmlAuthorNames.map(function (name) {
-                        var tmp = cheerio.load(name);
-                        var authorObj = {
-                            name: '',
-                            url: ''
-                        };
-                        if (tmp('a').length === 0) {
-                            authorObj.name = stripTags(name);
-                        } else {
-                            authorObj.name = tmp('a').text();
-                            authorObj.url = GOOGLE_SCHOLAR_URL_PREFIX + tmp('a').attr('href');
-                        }
-                        return authorObj;
-                    });
-                }
 
                 processedResults.push({
                     title: title,
+                    year: year,
                     url: url,
                     authors: authors,
                     description: description,
@@ -238,6 +229,7 @@ function scholarResultsCallback(resolve, reject) {
                 prevUrl: prevUrl,
                 next: function next() {
                     return new _promise2.default(function (resolve, reject) {
+                        if (!nextUrl) reject(new Error('At the end of search.'));
                         request({
                             headers: { 'User-Agent': USER_AGENT },
                             jar: true, url: nextUrl
@@ -246,6 +238,7 @@ function scholarResultsCallback(resolve, reject) {
                 },
                 previous: function previous() {
                     return new _promise2.default(function (resolve, reject) {
+                        if (!prevUrl) reject(new Error('At the begining of search, can not go back further.'));
                         request({
                             headers: { 'User-Agent': USER_AGENT },
                             jar: true, url: prevUrl

@@ -19,7 +19,7 @@ var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
 var search = function () {
     var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(query, options) {
-        var entry_limit, search_prompt, spinner, results, choices, exit, prompt, _ref2, selection, i, selected, fn;
+        var index, entry_limit, search_prompt, spinner, results, choices, exit, prompt, _ref2, selection, i, selected, fn;
 
         return _regenerator2.default.wrap(function _callee$(_context) {
             while (1) {
@@ -32,27 +32,31 @@ var search = function () {
                             process.stdin.removeListener('keypress', exit); // complete unnecessary LOL
                         };
 
-                        if (!(!options || !options.limit)) {
-                            _context.next = 3;
+                        index = (0, _utils.load_index)(options.indexPath);
+
+                        options = (0, _extends3.default)({}, options, index.search || {});
+
+                        if (options.limit) {
+                            _context.next = 5;
                             break;
                         }
 
-                        return _context.abrupt("return", console.log(chalk.red('INTERNAL_ERROR: options.limit is not specified')));
+                        return _context.abrupt("return", console.log(chalk.red('INTERNAL_ERROR: options.limit is not specified or 0')));
 
-                    case 3:
+                    case 5:
                         entry_limit = options.limit || ENTRY_LIMIT;
                         search_prompt = {
-                            message: "Search result from Google Scholar",
+                            message: "Results by Google Scholar",
                             type: "list",
                             default: 0,
                             pageSize: entry_limit * 2 // when this is less than the real screen estate, it gets very ugly.
                             // todo: measure the actual height of the screen.
                         };
                         spinner = ora("searching google scholar for " + chalk.green(query)).start();
-                        _context.next = 8;
+                        _context.next = 10;
                         return model.search(query, { limit: entry_limit });
 
-                    case 8:
+                    case 10:
                         results = _context.sent;
                         choices = results.map(_utils.simple).slice(0, entry_limit);
 
@@ -65,10 +69,10 @@ var search = function () {
 
 
                         process.stdin.on('keypress', exit);
-                        _context.next = 15;
+                        _context.next = 17;
                         return prompt;
 
-                    case 15:
+                    case 17:
                         _ref2 = _context.sent;
                         selection = _ref2.selection;
                         i = choices.indexOf(selection);
@@ -82,13 +86,13 @@ var search = function () {
                                 (0, _utils.curl)(selected.pdfUrl, fn);
                                 console.log(chalk.green("✓"), "pdf file is saved");
                             }
+                            if (options.open) open(fn);
                         } catch (e) {
                             console.log(chalk.red("✘"), "pdf file saving failed due to", e);
                         }
                         try {
                             selected.files = [].concat((0, _toConsumableArray3.default)(selected.files || []), [fn]);
-                            // appendFileSync(".yatta.json", JSON.stringify(results[i]));
-                            (0, _utils.update_index)(".yatta.yml", selected);
+                            (0, _utils.update_index)(options.indexPath, selected);
                             console.log(chalk.green("✓"), "bib entry attached");
                         } catch (e) {
                             console.log(chalk.red("✘"), "failed to append bib entry due to", e);
@@ -101,7 +105,7 @@ var search = function () {
                         //     items: []
                         // })
 
-                    case 22:
+                    case 24:
                     case "end":
                         return _context.stop();
                 }
@@ -129,14 +133,15 @@ var _require = require('rxjs'),
     Subject = _require.Subject;
 
 var model = require('./model');
+var open = require('opn');
 
 // take a look at: https://scotch.io/tutorials/build-an-interactive-command-line-application-with-nodejs
 
 var EXIT_KEYS = ["escape", "q"];
-
 var ENTRY_LIMIT = 15;
+var INDEX_PATH = "yatta.yml";
 
 program.version(package_config.version).option('-d, --directory', 'the directory to apply yatta. Default to ').option('-R, --recursive', 'flag to apply yatta recursively');
 
-program.command('search <query>', { isDefault: true }).option('--limit <limit>', "limit for the number of results to show on each search", parseInt, ENTRY_LIMIT).action(search);
+program.command('search <query>', { isDefault: true }).option('--limit <limit>', "limit for the number of results to show on each search", parseInt, ENTRY_LIMIT).option('--index-path <index path>', "path for the yatta.yml index file", INDEX_PATH).option('-O --open', "open the downloaded pdf file").action(search);
 program.parse(process.argv);

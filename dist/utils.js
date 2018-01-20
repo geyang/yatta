@@ -28,6 +28,7 @@ exports.$aus = $aus;
 exports.simple = simple;
 exports.url2fn = url2fn;
 exports.curl = curl;
+exports.load_index = load_index;
 exports.update_index = update_index;
 
 var _chalk = require("chalk");
@@ -74,11 +75,12 @@ function $aus(authors) {
 }
 
 function simple(_ref, i) {
-    var title = _ref.title,
+    var year = _ref.year,
+        title = _ref.title,
         authors = _ref.authors,
         pdf = _ref.pdf;
 
-    return i + ". " + _chalk2.default.green($aus(authors)) + ", " + title;
+    return i + ". " + _chalk2.default.gray(year) + " " + _chalk2.default.green($aus(authors)) + ", " + title;
 }
 
 function url2fn(url) {
@@ -104,26 +106,39 @@ function curl(url, targetPath) {
 
 
 var DEFAULT_DIR = "./";
-var DEFAULT_INDEX = { dir: DEFAULT_DIR };
+var DEFAULT_INDEX = { dir: DEFAULT_DIR, search: {} };
 
-function update_index(indexPath, entry) {
-    _fsExtra2.default.ensureFileSync(indexPath);
+function load_index(indexPath) {
     var index = void 0,
+        load_default = void 0,
         content = void 0;
     try {
         content = _fsExtra2.default.readFileSync(indexPath, 'utf8');
-        if (!content) index = DEFAULT_INDEX;else {
-            index = _jsYaml2.default.safeLoad(content);
-            if ((typeof index === "undefined" ? "undefined" : (0, _typeof3.default)(index)) !== 'object') throw new Error("index file " + indexPath + " seems to be ill-formed.");
-            _fsExtra2.default.copySync(indexPath, indexPath.trim() + ".backup", { overwrite: true });
-        }
+    } catch (err) {
+        load_default = true;
+    }
+    if (!content || load_default) {
+        index = DEFAULT_INDEX;
+        console.log(_chalk2.default.green(indexPath + " yatta config file doesn't exist! Loading default."));
+    } else {
+        index = _jsYaml2.default.safeLoad(content);
+        if ((typeof index === "undefined" ? "undefined" : (0, _typeof3.default)(index)) !== 'object') throw new Error("index file " + indexPath + " seems to be ill-formed.");
+    }
+    return index;
+}
+
+function update_index(indexPath, entry) {
+    var index = void 0;
+    if (_fsExtra2.default.existsSync(indexPath)) _fsExtra2.default.copySync(indexPath, indexPath.trim() + ".backup", { overwrite: true });else _fsExtra2.default.ensureFileSync(indexPath);
+    try {
+        index = load_index(indexPath);
     } catch (err) {
         console.log(f(_templateObject, err));
         throw err;
     }
     // todo: use dictionary instead;
     index.papers = [].concat((0, _toConsumableArray3.default)(index.papers || []), [entry]);
-    content = _jsYaml2.default.safeDump(index, { 'sortKeys': true });
+    var content = _jsYaml2.default.safeDump(index, { 'sortKeys': true });
     _fsExtra2.default.writeFileSync(indexPath, content);
 }
 
