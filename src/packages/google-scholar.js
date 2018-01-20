@@ -60,10 +60,14 @@ function scholarResultsCallback(resolve, reject) {
                 $(r).find('.gs_ri h3 span').remove();
                 let title = $(r).find('.gs_ri h3').text().trim();
                 let url = $(r).find('.gs_ri h3 a').attr('href');
-                let authorNamesHTMLString = $(r).find('.gs_ri .gs_a').html();
-                let etAl = false;
-                let etAlBegin = false;
-                let authors = [];
+                let authorsString = $(r).find('.gs_ri .gs_a').text();
+                let [authors, journalYear, website] = authorsString.split('- ').map(s => s.trim());
+                let [journal, year] = journalYear.split(',');
+                authors = authors.split(', ').map(a => ({name: a}));
+                // let authors = $(r).find('.gs_ri .gs_a a').map((i, e) => ({
+                //     name: e.children[0].data,
+                //     url: e.attribs.href || ""
+                // }));
                 let description = $(r).find('.gs_ri .gs_rs').text();
                 let footerLinks = $(r).find('.gs_ri .gs_fl a');
                 let citedCount = 0;
@@ -95,48 +99,17 @@ function scholarResultsCallback(resolve, reject) {
                         relatedUrl = GOOGLE_SCHOLAR_URL_PREFIX + $(footerLinks[1]).attr('href')
                     }
                 }
-                if (authorNamesHTMLString) {
-                    let cleanString = authorNamesHTMLString.substr(0, authorNamesHTMLString.indexOf(' - '));
-                    if (cleanString.substr(cleanString.length - ELLIPSIS_HTML_ENTITY.length) === ELLIPSIS_HTML_ENTITY) {
-                        etAl = true;
-                        cleanString = cleanString.substr(0, cleanString.length - ELLIPSIS_HTML_ENTITY.length)
-                    }
-                    if (cleanString.substr(0, ELLIPSIS_HTML_ENTITY.length) === ELLIPSIS_HTML_ENTITY) {
-                        etAlBegin = true;
-                        cleanString = cleanString.substr(ELLIPSIS_HTML_ENTITY.length + 2)
-                    }
-                    let htmlAuthorNames = cleanString.split(', ');
-                    if (etAl) {
-                        htmlAuthorNames.push(ET_AL_NAME)
-                    }
-                    if (etAlBegin) {
-                        htmlAuthorNames.unshift(ET_AL_NAME)
-                    }
-                    authors = htmlAuthorNames.map(name => {
-                        let tmp = cheerio.load(name);
-                        let authorObj = {
-                            name: '',
-                            url: ''
-                        };
-                        if (tmp('a').length === 0) {
-                            authorObj.name = stripTags(name)
-                        } else {
-                            authorObj.name = tmp('a').text();
-                            authorObj.url = GOOGLE_SCHOLAR_URL_PREFIX + tmp('a').attr('href')
-                        }
-                        return authorObj
-                    })
-                }
 
                 processedResults.push({
-                    title: title,
-                    url: url,
-                    authors: authors,
-                    description: description,
-                    citedCount: citedCount,
-                    citedUrl: citedUrl,
-                    relatedUrl: relatedUrl,
-                    pdfUrl: pdfUrl
+                    title,
+                    year,
+                    url,
+                    authors,
+                    description,
+                    citedCount,
+                    citedUrl,
+                    relatedUrl,
+                    pdfUrl
                 })
             });
 
@@ -159,6 +132,7 @@ function scholarResultsCallback(resolve, reject) {
                 prevUrl: prevUrl,
                 next: function () {
                     return new Promise(function (resolve, reject) {
+                        if (!nextUrl) reject(new Error('At the end of search.'));
                         request({
                             headers: {'User-Agent': USER_AGENT},
                             jar: true, url: nextUrl
@@ -167,6 +141,7 @@ function scholarResultsCallback(resolve, reject) {
                 },
                 previous: function () {
                     return new Promise(function (resolve, reject) {
+                        if (!prevUrl) reject(new Error('At the begining of search, can not go back further.'));
                         request({
                             headers: {'User-Agent': USER_AGENT},
                             jar: true, url: prevUrl
@@ -207,7 +182,7 @@ async function search_n(query, limit) {
     let results = [];
     let r = await search(query);
     results.push(...r.results);
-    while (results.length < limit) {
+    while (results.length < limit || r.results.length === 0) {
         await sleep(2000);
         r = await r.next();
         results.push(...r.results)

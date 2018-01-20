@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import {curl, simple, update_index, url2fn} from "./utils";
+import {curl, load_index, simple, update_index, url2fn} from "./utils";
 
 const ora = require("ora");
 const fs = require("fs");
@@ -10,19 +10,22 @@ const package_config = require('../package.json');
 const inquirer = require('inquirer');
 const {Subject} = require('rxjs');
 const model = require('./model');
+const open = require('opn');
 
 // take a look at: https://scotch.io/tutorials/build-an-interactive-command-line-application-with-nodejs
 
 const EXIT_KEYS = ["escape", "q"];
-
 const ENTRY_LIMIT = 15;
+const INDEX_PATH = "yatta.yml";
 
 async function search(query, options) {
-    if (!options || !options.limit)
-        return console.log(chalk.red('INTERNAL_ERROR: options.limit is not specified'));
+    const index = load_index(options.indexPath);
+    options = {...options, ...(index.search || {})};
+    if (!options.limit)
+        return console.log(chalk.red('INTERNAL_ERROR: options.limit is not specified or 0'));
     const entry_limit = options.limit || ENTRY_LIMIT;
     const search_prompt = {
-        message: "Search result from Google Scholar",
+        message: "Results by Google Scholar",
         type: "list",
         default: 0,
         pageSize: entry_limit * 2 // when this is less than the real screen estate, it gets very ugly.
@@ -60,13 +63,13 @@ async function search(query, options) {
             curl(selected.pdfUrl, fn);
             console.log(chalk.green("✓"), "pdf file is saved");
         }
+        if (options.open) open(fn)
     } catch (e) {
         console.log(chalk.red("✘"), "pdf file saving failed due to", e);
     }
     try {
         selected.files = [...(selected.files || []), fn];
-        // appendFileSync(".yatta.json", JSON.stringify(results[i]));
-        update_index(".yatta.yml", selected);
+        update_index(options.indexPath, selected);
         console.log(chalk.green("✓"), "bib entry attached");
     } catch (e) {
         console.log(chalk.red("✘"), "failed to append bib entry due to", e);
@@ -89,6 +92,8 @@ program
 program
     .command('search <query>', {isDefault: true})
     .option('--limit <limit>', "limit for the number of results to show on each search", parseInt, ENTRY_LIMIT)
+    .option('--index-path <index path>', "path for the yatta.yml index file", INDEX_PATH)
+    .option('-O --open', "open the downloaded pdf file")
     .action(search);
 program
     .parse(process.argv);

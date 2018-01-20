@@ -21,8 +21,8 @@ export function $aus(authors) {
     }
 }
 
-export function simple({title, authors, pdf}, i) {
-    return `${i}. ${chalk.green($aus(authors))}, ${title}`
+export function simple({year, title, authors, pdf}, i) {
+    return `${i}. ${chalk.gray(year)} ${chalk.green($aus(authors))}, ${title}`
 }
 
 export function url2fn(url) {
@@ -48,27 +48,41 @@ export function curl(url, targetPath) {
 
 
 const DEFAULT_DIR = "./";
-const DEFAULT_INDEX = {dir: DEFAULT_DIR};
+const DEFAULT_INDEX = {dir: DEFAULT_DIR, search: {}};
 
-export function update_index(indexPath, entry) {
-    fs.ensureFileSync(indexPath);
-    let index, content;
+export function load_index(indexPath) {
+    let index, load_default, content;
     try {
         content = fs.readFileSync(indexPath, 'utf8');
-        if (!content) index = DEFAULT_INDEX;
-        else {
-            index = yaml.safeLoad(content);
-            if (typeof index !== 'object')
-                throw new Error(`index file ${indexPath} seems to be ill-formed.`);
-            fs.copySync(indexPath, indexPath.trim() + ".backup", {overwrite: true});
-        }
+    } catch (err) {
+        load_default = true;
+    }
+    if (!content || load_default) {
+        index = DEFAULT_INDEX;
+        console.log(chalk.green(`${indexPath} yatta config file doesn't exist! Loading default.`))
+    }
+    else {
+        index = yaml.safeLoad(content);
+        if (typeof index !== 'object')
+            throw new Error(`index file ${indexPath} seems to be ill-formed.`);
+    }
+    return index
+}
+
+export function update_index(indexPath, entry) {
+    let index;
+    if (fs.existsSync(indexPath))
+        fs.copySync(indexPath, indexPath.trim() + ".backup", {overwrite: true});
+    else fs.ensureFileSync(indexPath);
+    try {
+        index = load_index(indexPath);
     } catch (err) {
         console.log(f`Failed to read index file due to ${err}`);
         throw err;
     }
     // todo: use dictionary instead;
     index.papers = [...(index.papers || []), entry];
-    content = yaml.safeDump(index, {'sortKeys': true});
+    const content = yaml.safeDump(index, {'sortKeys': true});
     fs.writeFileSync(indexPath, content);
 }
 
