@@ -1,10 +1,6 @@
 #!/usr/bin/env node
 "use strict";
 
-var _regenerator = require("babel-runtime/regenerator");
-
-var _regenerator2 = _interopRequireDefault(_regenerator);
-
 var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
 
 var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
@@ -13,35 +9,69 @@ var _extends2 = require("babel-runtime/helpers/extends");
 
 var _extends3 = _interopRequireDefault(_extends2);
 
+var _regenerator = require("babel-runtime/regenerator");
+
+var _regenerator2 = _interopRequireDefault(_regenerator);
+
+var _objectWithoutProperties2 = require("babel-runtime/helpers/objectWithoutProperties");
+
+var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
+
 var _asyncToGenerator2 = require("babel-runtime/helpers/asyncToGenerator");
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
-var search = function () {
-    var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(query, options) {
-        var index, entry_limit, search_prompt, spinner, results, choices, exit, prompt, _ref2, selection, i, selected, fn;
+var init = function () {
+    var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(options) {
+        var _options$indexPath, indexPath, restOpts;
 
         return _regenerator2.default.wrap(function _callee$(_context) {
             while (1) {
                 switch (_context.prev = _context.next) {
                     case 0:
+                        _options$indexPath = options.indexPath, indexPath = _options$indexPath === undefined ? INDEX_PATH : _options$indexPath, restOpts = (0, _objectWithoutProperties3.default)(options, ["indexPath"]);
+
+                        if (fs.existsSync(indexPath)) console.error("index file " + indexPath + " already exists.");else (0, _utils.update_index)(indexPath);
+                        return _context.abrupt("return", process.exit());
+
+                    case 3:
+                    case "end":
+                        return _context.stop();
+                }
+            }
+        }, _callee, this);
+    }));
+
+    return function init(_x) {
+        return _ref.apply(this, arguments);
+    };
+}();
+
+var search = function () {
+    var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(query, options) {
+        var index, entry_limit, search_prompt, spinner, results, choices, exit, prompt, _ref3, selection, i, selected, fn;
+
+        return _regenerator2.default.wrap(function _callee2$(_context2) {
+            while (1) {
+                switch (_context2.prev = _context2.next) {
+                    case 0:
                         exit = function exit(ch, key) {
                             if (key && EXIT_KEYS.indexOf(key.name) === -1) return;
                             prompt.ui.close();
                             console.log(chalk.green("\nExit on <" + key.name + "> key~"));
-                            process.stdin.removeListener('keypress', exit); // complete unnecessary LOL
+                            process.stdin.removeListener('keypress', exit);
                         };
 
                         index = (0, _utils.load_index)(options.indexPath);
 
-                        options = (0, _extends3.default)({}, options, index.search || {});
+                        options = (0, _extends3.default)({}, index.search || {}, options);
 
                         if (options.limit) {
-                            _context.next = 5;
+                            _context2.next = 5;
                             break;
                         }
 
-                        return _context.abrupt("return", console.log(chalk.red('INTERNAL_ERROR: options.limit is not specified or 0')));
+                        return _context2.abrupt("return", console.log(chalk.red('INTERNAL_ERROR: options.limit is not specified or 0')));
 
                     case 5:
                         entry_limit = options.limit || ENTRY_LIMIT;
@@ -53,11 +83,11 @@ var search = function () {
                             // todo: measure the actual height of the screen.
                         };
                         spinner = ora("searching google scholar for " + chalk.green(query)).start();
-                        _context.next = 10;
+                        _context2.next = 10;
                         return model.search(query, { limit: entry_limit });
 
                     case 10:
-                        results = _context.sent;
+                        results = _context2.sent;
                         choices = results.map(_utils.simple).slice(0, entry_limit);
 
                         spinner.stop();
@@ -69,27 +99,49 @@ var search = function () {
 
 
                         process.stdin.on('keypress', exit);
-                        _context.next = 17;
+                        _context2.next = 17;
                         return prompt;
 
                     case 17:
-                        _ref2 = _context.sent;
-                        selection = _ref2.selection;
+                        _ref3 = _context2.sent;
+                        selection = _ref3.selection;
+
+                        process.stdin.removeListener('keypress', exit);
                         i = choices.indexOf(selection);
                         selected = results[i];
                         fn = (0, _utils.url2fn)(selected.pdfUrl);
+                        _context2.prev = 23;
 
-                        try {
-                            if (fs.existsSync(fn)) {
-                                console.log(chalk.yellow("!"), "pdf file already exist! Skipping the download.");
-                            } else {
-                                (0, _utils.curl)(selected.pdfUrl, fn);
-                                console.log(chalk.green("✓"), "pdf file is saved");
-                            }
-                            if (options.open) open(fn);
-                        } catch (e) {
-                            console.log(chalk.red("✘"), "pdf file saving failed due to", e);
+                        if (fs.existsSync(fn)) {
+                            console.log(chalk.yellow("!"), "pdf file already exist! Skipping the download.");
+                        } else {
+                            (0, _utils.curl)(selected.pdfUrl, fn);
+                            console.log(chalk.green("✓"), "pdf file is saved");
                         }
+
+                        if (!options.open) {
+                            _context2.next = 30;
+                            break;
+                        }
+
+                        console.log(chalk.info("opening the pdf file."), "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
+                        _context2.next = 29;
+                        return (0, _utils2.sleep)(200);
+
+                    case 29:
+                        open(fn);
+
+                    case 30:
+                        _context2.next = 35;
+                        break;
+
+                    case 32:
+                        _context2.prev = 32;
+                        _context2.t0 = _context2["catch"](23);
+
+                        console.log(chalk.red("✘"), "pdf file saving failed due to", _context2.t0);
+
+                    case 35:
                         try {
                             selected.files = [].concat((0, _toConsumableArray3.default)(selected.files || []), [fn]);
                             (0, _utils.update_index)(options.indexPath, selected);
@@ -97,28 +149,24 @@ var search = function () {
                         } catch (e) {
                             console.log(chalk.red("✘"), "failed to append bib entry due to", e);
                         }
+                        process.exit();
 
-                        // prompt = inquirer.prompt({
-                        //     ...search_prompt,
-                        //     message: "",
-                        //     name: "selection",
-                        //     items: []
-                        // })
-
-                    case 24:
+                    case 37:
                     case "end":
-                        return _context.stop();
+                        return _context2.stop();
                 }
             }
-        }, _callee, this);
+        }, _callee2, this, [[23, 32]]);
     }));
 
-    return function search(_x, _x2) {
-        return _ref.apply(this, arguments);
+    return function search(_x2, _x3) {
+        return _ref2.apply(this, arguments);
     };
 }();
 
 var _utils = require("./utils");
+
+var _utils2 = require("../dist/utils");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -137,11 +185,18 @@ var open = require('opn');
 
 // take a look at: https://scotch.io/tutorials/build-an-interactive-command-line-application-with-nodejs
 
+
 var EXIT_KEYS = ["escape", "q"];
 var ENTRY_LIMIT = 15;
 var INDEX_PATH = "yatta.yml";
 
 program.version(package_config.version).option('-d, --directory', 'the directory to apply yatta. Default to ').option('-R, --recursive', 'flag to apply yatta recursively');
 
+program.command('init', { isDefault: true }).option('--index-path <index path>', "path for the yatta.yml index file", INDEX_PATH)
+// we DO NOT offer config option to keep it simple
+// .option('-O --open', "open the downloaded pdf file")
+.action(init);
+
 program.command('search <query>', { isDefault: true }).option('--limit <limit>', "limit for the number of results to show on each search", parseInt, ENTRY_LIMIT).option('--index-path <index path>', "path for the yatta.yml index file", INDEX_PATH).option('-O --open', "open the downloaded pdf file").action(search);
+
 program.parse(process.argv);

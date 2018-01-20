@@ -52,7 +52,7 @@ var search_n = function () {
                         results.push.apply(results, (0, _toConsumableArray3.default)(r.results));
 
                     case 5:
-                        if (!(results.length < limit || r.results.length === 0)) {
+                        if (!(results.length < limit && r.results.length > 0 && !!r.nextUrl)) {
                             _context.next = 14;
                             break;
                         }
@@ -101,8 +101,8 @@ var stripTags = require('striptags');
 var RATE_LIMITS = { S: 5, M: 200, D: 1e8 };
 
 var RESULTS_PER_PAGE = 10;
-// const USER_AGENT = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7';
-var USER_AGENT = 'curl/7.52.1';
+var USER_AGENT = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7';
+// const USER_AGENT = 'curl/7.52.1';
 var GOOGLE_SCHOLAR_URL = 'https://scholar.google.com/scholar?hl=en&q=';
 var GOOGLE_SCHOLAR_URL_PREFIX = 'https://scholar.google.com';
 
@@ -119,6 +119,8 @@ var STATUS_MESSAGE_BODY = 'This page appears when Google automatically detects r
 
 // regex with thanks to http://stackoverflow.com/a/5917250/1449799
 var RESULT_COUNT_RE = /\W*((\d+|\d{1,3}(,\d{3})*)(\.\d+)?) results/;
+var ERR_SEARCH_END = "ERR_SEARCH_END";
+var ERR_SEARCH_HEAD = "ERR_SEARCH_HEAD";
 
 function scholarResultsCallback(resolve, reject) {
     return function (error, response, html) {
@@ -230,7 +232,11 @@ function scholarResultsCallback(resolve, reject) {
                 prevUrl: prevUrl,
                 next: function next() {
                     return new _promise2.default(function (resolve, reject) {
-                        if (!nextUrl) reject(new Error('At the end of search.'));
+                        if (!nextUrl) {
+                            var _err = new Error('At the end of search');
+                            _err.code = ERR_SEARCH_END;
+                            reject(_err);
+                        }
                         request({
                             headers: { 'User-Agent': USER_AGENT },
                             jar: true, url: nextUrl
@@ -239,7 +245,11 @@ function scholarResultsCallback(resolve, reject) {
                 },
                 previous: function previous() {
                     return new _promise2.default(function (resolve, reject) {
-                        if (!prevUrl) reject(new Error('At the begining of search, can not go back further.'));
+                        if (!prevUrl) {
+                            var _err2 = new Error('At the begining of search, can not go back further.');
+                            _err2.code = ERR_SEARCH_HEAD;
+                            reject();
+                        }
                         request({
                             headers: { 'User-Agent': USER_AGENT },
                             jar: true, url: prevUrl

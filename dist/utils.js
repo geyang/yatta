@@ -137,7 +137,8 @@ function update_index(indexPath, entry) {
         throw err;
     }
     // todo: use dictionary instead;
-    index.papers = [].concat((0, _toConsumableArray3.default)(index.papers || []), [entry]);
+    if (!index.papers) index.papers = [];
+    if (!!entry) index.papers = [].concat((0, _toConsumableArray3.default)(index.papers), [entry]);
     var content = _jsYaml2.default.safeDump(index, { 'sortKeys': true });
     _fsExtra2.default.writeFileSync(indexPath, content);
 }
