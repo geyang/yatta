@@ -20,7 +20,7 @@ const CITATION_COUNT_PREFIX = 'Cited by ';
 const RELATED_ARTICLES_PREFIX = 'Related articles';
 
 const ROBOT_PAGE = "Please show you&#39;re not a robot";
-const BOT_ECODE = "ERR_DETECTED_AS_BOT";
+const ERR_BOT = "ERR_DETECTED_AS_BOT";
 const STATUS_CODE_FOR_RATE_LIMIT = 503;
 const STATUS_MESSAGE_FOR_RATE_LIMIT = 'Service Unavailable';
 const STATUS_MESSAGE_BODY = 'This page appears when Google automatically detects requests coming from your computer network which appear to be in violation of the <a href="//www.google.com/policies/terms/">Terms of Service</a>. The block will expire shortly after those requests stop.';
@@ -36,7 +36,7 @@ function scholarResultsCallback(resolve, reject) {
             reject(error)
         } else if (html.match(ROBOT_PAGE)) {
             const err = new Error('You are detected as a robot');
-            err.code = BOT_ECODE;
+            err.code = ERR_BOT;
             reject(err)
         } else if (response.statusCode !== 200) {
             if (response.statusCode === STATUS_CODE_FOR_RATE_LIMIT && response.statusMessage === STATUS_MESSAGE_FOR_RATE_LIMIT && response.body.indexOf(STATUS_MESSAGE_BODY) > -1) {

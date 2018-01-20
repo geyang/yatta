@@ -57,9 +57,18 @@ async function search(query, options) {
     };
 
     let spinner = ora(`searching google scholar for ${chalk.green(query)}`).start();
-    let results = await model.search(query, {limit: entry_limit});
-    let choices = results.map(simple).slice(0, entry_limit);
+    try {
+        let results = await model.search(query, {limit: entry_limit});
+    } catch (e) {
+        spinner.stop();
+        if (e.code === ERR_BOT)
+            console.log(chalk.green("\nYou are detected as a bot\n"), e);
+        else
+            console.log(chalk.red('\nsomething went wrong during search\n'), e);
+        process.exit();
+    }
     spinner.stop();
+    let choices = results.map(simple).slice(0, entry_limit);
 
     function exit(ch, key) {
         if (key && EXIT_KEYS.indexOf(key.name) === -1) return;
