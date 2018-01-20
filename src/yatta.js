@@ -62,9 +62,9 @@ async function search(query, options) {
     } catch (e) {
         spinner.stop();
         if (e.code === ERR_BOT)
-            console.log(chalk.green("\nYou are detected as a bot\n"), e);
+            console.error(chalk.green("\nYou are detected as a bot\n"), e);
         else
-            console.log(chalk.red('\nsomething went wrong during search\n'), e);
+            console.error(chalk.red('\nsomething went wrong during search\n'), e);
         process.exit();
     }
     spinner.stop();
