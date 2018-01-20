@@ -2,6 +2,8 @@
 
 import {curl, load_index, simple, update_index, url2fn} from "./utils";
 import {sleep} from "../dist/utils";
+import * as backends from "./backends";
+import {ERR_BOT} from "./backends/google-scholar";
 
 const ora = require("ora");
 const fs = require("fs");
@@ -10,7 +12,6 @@ const program = require('commander');
 const package_config = require('../package.json');
 const inquirer = require('inquirer');
 const {Subject} = require('rxjs');
-const model = require('./model');
 const open = require('opn');
 
 // take a look at: https://scotch.io/tutorials/build-an-interactive-command-line-application-with-nodejs
@@ -46,19 +47,25 @@ async function search(query, options) {
     const index = load_index(options.indexPath);
     options = {...(index.search || {}), ...options};
     if (!options.limit)
-        return console.log(chalk.red('INTERNAL_ERROR: options.limit is not specified or 0'));
-    const entry_limit = options.limit || ENTRY_LIMIT;
+        return console.error(chalk.red('OPTION_ERROR: options.limit is not specified or 0'));
+    // add options.backend
+    const search = backends.SOURCES[options.source];
+    const sourceName = backends.NAMES[options.source];
+    if (!search && typeof search === "function")
+        return console.error(chalk.red(`OPTION_ERROR: options.source is not in the white list ${backends.SOURCES}`));
+
     const search_prompt = {
-        message: "Results by Google Scholar",
+        message: `Results by ${sourceName}`,
         type: "list",
         default: 0,
-        pageSize: entry_limit * 2 // when this is less than the real screen estate, it gets very ugly.
+        pageSize: options.limit * 2 // when this is less than the real screen estate, it gets very ugly.
         // todo: measure the actual height of the screen.
     };
 
     let spinner = ora(`searching google scholar for ${chalk.green(query)}`).start();
+    let results;
     try {
-        let results = await model.search(query, {limit: entry_limit});
+        ({results} = await search(query, options.limit));
     } catch (e) {
         spinner.stop();
         if (e.code === ERR_BOT)
@@ -68,7 +75,7 @@ async function search(query, options) {
         process.exit();
     }
     spinner.stop();
-    let choices = results.map(simple).slice(0, entry_limit);
+    let choices = results.map(simple).slice(0, options.limit);
 
     function exit(ch, key) {
         if (key && EXIT_KEYS.indexOf(key.name) === -1) return;
@@ -130,6 +137,11 @@ program
 
 program
     .command('search <query>', {isDefault: true})
+    .description('Search for papers with the specified search engine.')
+    // todo: do validation here in the spec.
+    .option(`-s --source <${Object.keys(backends.SOURCES)}>`,
+        `The search backend to use, choose among ${Object.keys(backends.SOURCES)}`,
+        (s) => s.toLowerCase(), backends.GOOGLE_SCHOLAR)
     .option('--limit <limit>', "limit for the number of results to show on each search", parseInt, ENTRY_LIMIT)
     .option('--index-path <index path>', "path for the yatta.yml index file", INDEX_PATH)
     .option('-O --open', "open the downloaded pdf file")

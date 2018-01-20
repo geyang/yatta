@@ -20,15 +20,15 @@ const CITATION_COUNT_PREFIX = 'Cited by ';
 const RELATED_ARTICLES_PREFIX = 'Related articles';
 
 const ROBOT_PAGE = "Please show you&#39;re not a robot";
-const ERR_BOT = "ERR_DETECTED_AS_BOT";
+export const ERR_BOT = "ERR_DETECTED_AS_BOT";
 const STATUS_CODE_FOR_RATE_LIMIT = 503;
 const STATUS_MESSAGE_FOR_RATE_LIMIT = 'Service Unavailable';
 const STATUS_MESSAGE_BODY = 'This page appears when Google automatically detects requests coming from your computer network which appear to be in violation of the <a href="//www.google.com/policies/terms/">Terms of Service</a>. The block will expire shortly after those requests stop.';
 
 // regex with thanks to http://stackoverflow.com/a/5917250/1449799
 const RESULT_COUNT_RE = /\W*((\d+|\d{1,3}(,\d{3})*)(\.\d+)?) results/;
-const ERR_SEARCH_END = "ERR_SEARCH_END";
-const ERR_SEARCH_HEAD = "ERR_SEARCH_HEAD";
+export const ERR_SEARCH_END = "ERR_SEARCH_END";
+export const ERR_SEARCH_HEAD = "ERR_SEARCH_HEAD";
 
 function scholarResultsCallback(resolve, reject) {
     return function (error, response, html) {
@@ -164,7 +164,7 @@ function scholarResultsCallback(resolve, reject) {
     }
 }
 
-function search(query) {
+function _search(query) {
     return new Promise(function (resolve, reject) {
         request({
             headers: {'User-Agent': USER_AGENT},
@@ -189,9 +189,10 @@ function sleep(ms) {
     pdfUrl: 'https://pdfs.semanticscholar.org/831c/f8dacbe5e9f6d368427c4e14316e429a34b5.pdf' },
 * */
 
-async function search_n(query, limit) {
+export async function search(query, limit) {
+    if (typeof query !== 'string') throw new Error("only string query is allowed");
     let results = [];
-    let r = await search(query);
+    let r = await _search(query);
     results.push(...r.results);
     while (results.length < limit && r.results.length > 0 && !!r.nextUrl) {
         await sleep(2000);
@@ -205,7 +206,7 @@ async function search_n(query, limit) {
     };
 }
 
-function all(query) {
+export function all(query) {
     return search(query)
         .then(resultsObj => {
             //  eg n=111 but i have 10 already so 101 remain,
@@ -235,9 +236,3 @@ function all(query) {
         })
 }
 
-
-module.exports = {
-    search: search,
-    search_n: search_n,
-    all: all
-};
