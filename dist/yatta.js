@@ -45,7 +45,8 @@ var search = function () {
                             message: "Search result from Google Scholar",
                             type: "list",
                             default: 0,
-                            pageSize: entry_limit + 2
+                            pageSize: entry_limit * 2 // when this is less than the real screen estate, it gets very ugly.
+                            // todo: measure the actual height of the screen.
                         };
                         spinner = ora("searching google scholar for " + chalk.green(query)).start();
                         _context.next = 8;

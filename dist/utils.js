@@ -83,7 +83,10 @@ function simple(_ref, i) {
 
 function url2fn(url) {
     var parsed = (0, _url.parse)(url);
-    return _path2.default.basename(parsed.pathname);
+    var fn = _path2.default.basename(parsed.pathname).trim();
+    // add pdf here.
+    fn += !fn.match(/\.pdf$/) ? ".pdf" : "";
+    return fn;
 }
 
 var USER_AGENT = 'curl/7.52.1';
@@ -97,6 +100,7 @@ function curl(url, targetPath) {
 }
 
 // curl("https://arxiv.org/pdf/1703.01988.pdf", "test.pdf");
+// curl ("https://arxiv.org/pdf/1606.04460", "test.pdf");
 
 
 var DEFAULT_DIR = "./";
