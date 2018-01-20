@@ -20,6 +20,7 @@ const EXIT_KEYS = ["escape", "q"];
 const ENTRY_LIMIT = 15;
 const INDEX_PATH = "yatta.yml";
 
+/** yatta init --index-path ".yatta" */
 async function init(options) {
     const {indexPath = INDEX_PATH, ...restOpts} = options;
     if (fs.existsSync(indexPath))
@@ -27,6 +28,18 @@ async function init(options) {
     else
         update_index(indexPath);
     return process.exit()
+}
+
+/** Setting yatta configurations
+ * yatta set search.open true
+ * yatta set search.limit 100
+ * */
+async function set(key, value, options) {
+    const {indexPath = INDEX_PATH, ...restOpts} = options;
+    if (fs.existsSync(indexPath))
+        console.error(`index file ${indexPath} already exists.`);
+    else
+        update_index(indexPath);
 }
 
 async function search(query, options) {
