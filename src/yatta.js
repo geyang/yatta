@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
 import {curl, simple, update_index, url2fn} from "./utils";
-import {appendFileSync, writeFileSync} from "fs";
-
 const ora = require("ora");
+const fs = require("fs");
 const chalk = require('chalk');
 const program = require('commander');
 const package_config = require('../package.json');
@@ -53,8 +52,12 @@ async function search(query, options) {
 
     const fn = url2fn(selected.pdfUrl);
     try {
-        curl(selected.pdfUrl, fn);
-        console.log(chalk.green("✓"), "pdf file is saved");
+        if (fs.existsSync(fn)) {
+            console.log(chalk.yellow("!"), "pdf file already exist! Skipping the download.");
+        } else {
+            curl(selected.pdfUrl, fn);
+            console.log(chalk.green("✓"), "pdf file is saved");
+        }
     } catch (e) {
         console.log(chalk.red("✘"), "pdf file saving failed due to", e);
     }
@@ -82,7 +85,7 @@ program
     .option('-R, --recursive', 'flag to apply yatta recursively');
 
 program
-    .command('search <query>')
+    .command('search <query>', {isDefault: true})
     .option('--limit <limit>', "limit for the number of results to show on each search", parseInt, ENTRY_LIMIT)
     .action(search);
 program

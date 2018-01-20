@@ -1,0 +1,74 @@
+dir: ./
+papers:
+  - authors:
+      - name: J Veness
+        url: 'https://scholar.google.com/citations?user=_iYrAxEAAAAJ&hl=en&oi=sra'
+      - name: MG Bellemare
+        url: 'https://scholar.google.com/citations?user=uyYPun0AAAAJ&hl=en&oi=sra'
+      - name: M Hutter
+        url: 'https://scholar.google.com/citations?user=7hmCntEAAAAJ&hl=en&oi=sra'
+      - name: 'A Chua&#x2026;&#xA0;- AAAI'
+        url: ''
+      - name: '2015'
+        url: ''
+    citedCount: 0
+    citedUrl: 'https://scholar.google.comjavascript:void(0)'
+    description: >-
+      Abstract This paper describes a new information-theoretic policy
+      evaluation technique for reinforcement learning. This technique converts
+      any compression or density model into a corresponding estimate of value.
+      Under appropriate stationarity and ergodicity conditions, 
+    files:
+      - '9975'
+    pdfUrl: 'http://www.aaai.org/ocs/index.php/AAAI/AAAI15/paper/download/9649/9975'
+    relatedUrl: ''
+    title: Compress and Control.
+    url: 'http://www.aaai.org/ocs/index.php/AAAI/AAAI15/paper/download/9649/9975'
+  - authors:
+      - name: J Veness
+        url: 'https://scholar.google.com/citations?user=_iYrAxEAAAAJ&hl=en&oi=sra'
+      - name: MG Bellemare
+        url: 'https://scholar.google.com/citations?user=uyYPun0AAAAJ&hl=en&oi=sra'
+      - name: M Hutter
+        url: 'https://scholar.google.com/citations?user=7hmCntEAAAAJ&hl=en&oi=sra'
+      - name: 'A Chua&#x2026;&#xA0;- AAAI'
+        url: ''
+      - name: '2015'
+        url: ''
+    citedCount: 0
+    citedUrl: 'https://scholar.google.comjavascript:void(0)'
+    description: >-
+      Abstract This paper describes a new information-theoretic policy
+      evaluation technique for reinforcement learning. This technique converts
+      any compression or density model into a corresponding estimate of value.
+      Under appropriate stationarity and ergodicity conditions, 
+    files:
+      - '9975'
+    pdfUrl: 'http://www.aaai.org/ocs/index.php/AAAI/AAAI15/paper/download/9649/9975'
+    relatedUrl: ''
+    title: Compress and Control.
+    url: 'http://www.aaai.org/ocs/index.php/AAAI/AAAI15/paper/download/9649/9975'
+  - authors:
+      - name: J Veness
+        url: 'https://scholar.google.com/citations?user=_iYrAxEAAAAJ&hl=en&oi=sra'
+      - name: MG Bellemare
+        url: 'https://scholar.google.com/citations?user=uyYPun0AAAAJ&hl=en&oi=sra'
+      - name: M Hutter
+        url: 'https://scholar.google.com/citations?user=7hmCntEAAAAJ&hl=en&oi=sra'
+      - name: 'A Chua&#x2026;&#xA0;- AAAI'
+        url: ''
+      - name: '2015'
+        url: ''
+    citedCount: 0
+    citedUrl: 'https://scholar.google.comjavascript:void(0)'
+    description: >-
+      Abstract This paper describes a new information-theoretic policy
+      evaluation technique for reinforcement learning. This technique converts
+      any compression or density model into a corresponding estimate of value.
+      Under appropriate stationarity and ergodicity conditions, 
+    files:
+      - '9975'
+    pdfUrl: 'http://www.aaai.org/ocs/index.php/AAAI/AAAI15/paper/download/9649/9975'
+    relatedUrl: ''
+    title: Compress and Control.
+    url: 'http://www.aaai.org/ocs/index.php/AAAI/AAAI15/paper/download/9649/9975'

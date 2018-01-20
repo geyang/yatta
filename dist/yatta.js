@@ -75,8 +75,12 @@ var search = function () {
                         fn = (0, _utils.url2fn)(selected.pdfUrl);
 
                         try {
-                            (0, _utils.curl)(selected.pdfUrl, fn);
-                            console.log(chalk.green("✓"), "pdf file is saved");
+                            if (fs.existsSync(fn)) {
+                                console.log(chalk.yellow("!"), "pdf file already exist! Skipping the download.");
+                            } else {
+                                (0, _utils.curl)(selected.pdfUrl, fn);
+                                console.log(chalk.green("✓"), "pdf file is saved");
+                            }
                         } catch (e) {
                             console.log(chalk.red("✘"), "pdf file saving failed due to", e);
                         }
@@ -111,11 +115,10 @@ var search = function () {
 
 var _utils = require("./utils");
 
-var _fs = require("fs");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var ora = require("ora");
+var fs = require("fs");
 var chalk = require('chalk');
 var program = require('commander');
 var package_config = require('../package.json');
@@ -134,5 +137,5 @@ var ENTRY_LIMIT = 15;
 
 program.version(package_config.version).option('-d, --directory', 'the directory to apply yatta. Default to ').option('-R, --recursive', 'flag to apply yatta recursively');
 
-program.command('search <query>').option('--limit <limit>', "limit for the number of results to show on each search", parseInt, ENTRY_LIMIT).action(search);
+program.command('search <query>', { isDefault: true }).option('--limit <limit>', "limit for the number of results to show on each search", parseInt, ENTRY_LIMIT).action(search);
 program.parse(process.argv);
