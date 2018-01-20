@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import {curl, simple, update_index, url2fn} from "./utils";
+
 const ora = require("ora");
 const fs = require("fs");
 const chalk = require('chalk');
@@ -24,7 +25,8 @@ async function search(query, options) {
         message: "Search result from Google Scholar",
         type: "list",
         default: 0,
-        pageSize: entry_limit + 2
+        pageSize: entry_limit * 2 // when this is less than the real screen estate, it gets very ugly.
+        // todo: measure the actual height of the screen.
     };
 
     let spinner = ora(`searching google scholar for ${chalk.green(query)}`).start();

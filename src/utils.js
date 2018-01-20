@@ -27,7 +27,10 @@ export function simple({title, authors, pdf}, i) {
 
 export function url2fn(url) {
     const parsed = urlParse(url);
-    return path.basename(parsed.pathname);
+    let fn = path.basename(parsed.pathname).trim();
+    // add pdf here.
+    fn += !fn.match(/\.pdf$/) ? ".pdf" : "";
+    return fn
 }
 
 const USER_AGENT = 'curl/7.52.1';
@@ -41,6 +44,7 @@ export function curl(url, targetPath) {
 }
 
 // curl("https://arxiv.org/pdf/1703.01988.pdf", "test.pdf");
+// curl ("https://arxiv.org/pdf/1606.04460", "test.pdf");
 
 
 const DEFAULT_DIR = "./";
