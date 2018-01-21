@@ -47,62 +47,39 @@ function name_regularization(...names) {
 /**
  * query: a list of strings, of the form ["au:some", "text", "actual-lastname", "ti:like" "this", "all:typical query", "cat:cs"]
  * returns AND+au:+some+text+AND+ti:+like+this
+ * should ['ti:"compress and control"']
+ * return: ti:+EXACT+compress_and_control
+ *
+ * haha obviously a query is NOT a regular express. For example,
+ *      `yatta search ti:"compress and control" ti:"neural episodic controller"`
+ * implies that the two titles have an OR relationship. However,
+ *      `yatta search au:"bellemare" ti:"compress and control"`
+ * implies that the two are AND.
+ * What we can do is to treat "," as OR, and space and AND.
  * */
-function page_query_coersion(query) {
-    const queryString = query.join(' ');
-    const segments = queryString.split(/\s*\b([A-z]*:)\s*/).filter(s => !!s); //filter empty strings
+const validate = (q) => q.match(/^[A-z]+:[^:]+$/);
+const hasKey = (q) => q.match(/\b[A-z]+:.+/);
+const getKeyValue = (q) => q.match(/([A-z]+):(.+)/).slice(1, 3);
+
+function parse_query(query, join, exactOp, andOp, orOp) {
+    //todo: if (query.length == 1) { /*this is raw. We do NOT handle this.*/ }
     const queryContext = [];
-    for (let s of segments) {
-        let last = queryContext[queryContext.length - 1];
-        if (s.match(/^[A-z]+:$/)) {
-            last = {key: s};
+    let last;
+    for (let q of query) {
+        q = q.trim();
+        if (hasKey(q)) {  /* push stuff to context */
+            let [key, value] = getKeyValue(q);
+            queryContext.push({key, value: exactOp(value)})
+        } else if (!last) {/*take last from context and push to it*/
+            last = {value: exactOp(q)};
             queryContext.push(last);
-        } else if (last && last.key === 'au:') {
-            last.value = name_regularization(...s.split(" "))
-        } else if (last && last.key === 'cat:') {
-            if (s.match(/\s/)) throw new Error(`"cat:${s}" is not parsing correctly because of the white space`);
-            last.value = s;
-        } else {
-            if (!last) {
-                last = {key: "all:"};
-                queryContext.push(last);
-            }
-            last.value = s.split(' ').reduce(polish('and'))
+        } else { /*make last, and push to it*/
+            last.value.push(exactOp(q))
         }
     }
-    return queryContext.map(c => `${c.key}+${c.value}`).reduce(polish('and'))
+    return queryContext.map(({key, value}) => join(key, value)).reduce(andOp);
 }
 
-// let r = page_query_coersion(["au:some", "first", "lastname", "ti:like", "this", "and", "that", 'cat:stat.ml']);
-// console.log(r);
-
-function api_query_coersion(query) {
-    const queryString = query.join(' ');
-    const segments = queryString.split(/\s*\b([A-z]*:)\s*/).filter(s => !!s); //filter empty strings
-    const queryContext = [];
-    for (let s of segments) {
-        let last = queryContext[queryContext.length - 1];
-        if (s.match(/^[A-z]+:$/)) {
-            last = {key: s};
-            queryContext.push(last);
-        } else if (last && last.key === 'au:') {
-            last.value = name_regularization(...s.split(" "))
-        } else if (last && last.key === 'cat:') {
-            if (s.match(/\s/)) throw new Error(`"cat:${s}" is not parsing correctly because of the white space`);
-            last.value = s;
-        } else {
-            if (!last) {
-                last = {key: "all:"};
-                queryContext.push(last);
-            }
-            last.value = s.split(' ').reduce(infix('and'));
-        }
-    }
-    return queryContext.map(c => `${c.key}"${c.value}"`).reduce(infix('and'))
-}
-
-// r = api_query_coersion(["au:some", "first", "lastname", "ti:like", "this", "and", "that", 'cat:stat.ml']);
-// console.log(r);
 
 function unique(a, k) {
     let a_, i, j, known, len;
@@ -150,7 +127,7 @@ function coerceEntry(entry) {
 
 export function search(query, limit, sortBy) {
     return new Promise((resolve, reject) => {
-        request.get(makeUrl(api_query_coersion(query), limit, sortBy), function (err, resp, data) {
+        request.get(search_url(query, limit, sortBy), function (err, resp, data) {
             return xml2js.parseString(data, function (err, parsed) {
                 let results, ref, ref1, total;
                 if (err != null) {
@@ -168,10 +145,10 @@ export function search(query, limit, sortBy) {
 }
 
 export function search_page(query) {
-    return `https://arxiv.org/find/all/1/${page_query_coersion(query)}/0/1/0/all/0/1`
+    return `https://arxiv.org/find/all/1/${parse_query(query, (k, v) => k ? `${k}:+${v}` : v, (s) => `EXACT+${s.replace(/\s+/g, '_')}`, polish('and'), polish('or'))}/0/1/0/all/0/1`
 }
 
 
-export function search_url(query) {
-    return makeUrl(api_query_coersion(query));
+export function search_url(query, ...rest) {
+    return makeUrl(parse_query(query, (k, v) => k ? `${k}:${v}` : v, (s) => `"${s}"`, infix('and'), infix('or')), ...rest);
 }
