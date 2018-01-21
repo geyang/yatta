@@ -90,7 +90,7 @@ var set = function () {
                         if (key === 'dir') try {
                             made = fs.ensureDirSync(value);
 
-                            if (made) spinner.success("just created a new folder " + value + "!");
+                            if (made) spinner.succeed("just created a new folder " + value + "!");
                         } catch (err) {
                             spinner.fail(err);
                             process.exit();
