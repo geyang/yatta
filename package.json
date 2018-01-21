@@ -8,6 +8,8 @@
     "build": "babel src -d dist",
     "pre-publish": "npm run build && git add . && git commit -m 'BUILD'",
     "patch": "npm run pre-publish && npm version patch && npm publish",
+    "minor": "npm run pre-publish && npm version minor && npm publish",
+    "major": "npm run pre-publish && npm version major && npm publish",
     "dev:update": "npm cache clean --force && npm install -g yatta"
   },
   "preferGlobal": true,

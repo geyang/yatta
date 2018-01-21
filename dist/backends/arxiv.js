@@ -8,6 +8,14 @@ var _promise = require("babel-runtime/core-js/promise");
 
 var _promise2 = _interopRequireDefault(_promise);
 
+var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
+var _getIterator2 = require("babel-runtime/core-js/get-iterator");
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
 exports.search = search;
 exports.search_page = search_page;
 
@@ -31,12 +39,7 @@ function makeUrl(query) {
 } /** Created by ge on 1/20/18. */
 
 
-var key_map = {
-    author: 'au',
-    q: 'all',
-    title: 'ti',
-    category: 'cat'
-};
+var key_map = { author: 'au', q: 'all', title: 'ti', category: 'cat' };
 
 function coerceQueryKey(key) {
     return key_map[key] || key;
@@ -55,15 +58,80 @@ function coerceQueryValue(key, value) {
     }
 }
 
+function polish(op) {
+    return function (a, b) {
+        return op.trim().toUpperCase() + "+" + a + "+" + b;
+    };
+}
+
+function name_regularization() {
+    for (var _len = arguments.length, names = Array(_len), _key = 0; _key < _len; _key++) {
+        names[_key] = arguments[_key];
+    }
+
+    if (names.length <= 1) return names.join('_');
+    var last = names.pop();
+    return [last].concat(names).join('_');
+}
+
+// console.log(name_regularization('ge', 'yang'));
+
 /**
- * query: a list of strings, of the form ["au:some", "text" "ti:like" "this"]
+ * query: a list of strings, of the form ["au:some", "text", "actual-lastname", "ti:like" "this", "all:typical query", "cat:cs"]
  * returns AND+au:+some+text+AND+ti:+like+this
  * */
 function coerceQuery(query) {
-    return query.join('+').replace(/(^|\+)(au|ti|all|cat:)/g, "$1AND+$2").replace(/:([^+])/g, ":+$1");
+    var queryString = query.join(' ');
+    var segments = queryString.split(/\s*\b([A-z]*:)\s*/).filter(function (s) {
+        return !!s;
+    }); //filter empty strings
+    var queryContext = [];
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = (0, _getIterator3.default)(segments), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var s = _step.value;
+
+            var last = queryContext[queryContext.length - 1];
+            if (s.match(/^[A-z]+:$/)) {
+                last = { key: s };
+                queryContext.push(last);
+            } else if (last && last.key === 'au:') {
+                last.value = name_regularization.apply(undefined, (0, _toConsumableArray3.default)(s.split(" ")));
+            } else if (last && last.key === 'cat:') {
+                if (s.match(/\s/)) throw new Error("\"cat:" + s + "\" is not parsing correctly because of the white space");
+                last.value = s;
+            } else {
+                if (!last) {
+                    last = { key: "all:" };
+                    queryContext.push(last);
+                }
+                last.value = s.split(' ').reduce(polish('and'));
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return queryContext.map(function (c) {
+        return c.key + "+" + c.value;
+    }).reduce(polish('and'));
 }
 
-// const r = coerceQuery(["au:some", "text", "ti:like", "this"]);
+// const r = coerceQuery(["au:some", "first", "lastname", "ti:like", "this", "and", "that"]);
 // console.log(r);
 
 function unique(a, k) {
