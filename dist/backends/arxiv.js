@@ -8,9 +8,9 @@ var _promise = require("babel-runtime/core-js/promise");
 
 var _promise2 = _interopRequireDefault(_promise);
 
-var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
+var _slicedToArray2 = require("babel-runtime/helpers/slicedToArray");
 
-var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
 var _getIterator2 = require("babel-runtime/core-js/get-iterator");
 
@@ -88,36 +88,54 @@ function name_regularization() {
 /**
  * query: a list of strings, of the form ["au:some", "text", "actual-lastname", "ti:like" "this", "all:typical query", "cat:cs"]
  * returns AND+au:+some+text+AND+ti:+like+this
+ * should ['ti:"compress and control"']
+ * return: ti:+EXACT+compress_and_control
+ *
+ * haha obviously a query is NOT a regular express. For example,
+ *      `yatta search ti:"compress and control" ti:"neural episodic controller"`
+ * implies that the two titles have an OR relationship. However,
+ *      `yatta search au:"bellemare" ti:"compress and control"`
+ * implies that the two are AND.
+ * What we can do is to treat "," as OR, and space and AND.
  * */
-function page_query_coersion(query) {
-    var queryString = query.join(' ');
-    var segments = queryString.split(/\s*\b([A-z]*:)\s*/).filter(function (s) {
-        return !!s;
-    }); //filter empty strings
+var validate = function validate(q) {
+    return q.match(/^[A-z]+:[^:]+$/);
+};
+var hasKey = function hasKey(q) {
+    return q.match(/\b[A-z]+:.+/);
+};
+var getKeyValue = function getKeyValue(q) {
+    return q.match(/([A-z]+):(.+)/).slice(1, 3);
+};
+
+function parse_query(query, join, exactOp, andOp, orOp) {
+    //todo: if (query.length == 1) { /*this is raw. We do NOT handle this.*/ }
     var queryContext = [];
+    var last = void 0;
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
 
     try {
-        for (var _iterator = (0, _getIterator3.default)(segments), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var s = _step.value;
+        for (var _iterator = (0, _getIterator3.default)(query), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var q = _step.value;
 
-            var last = queryContext[queryContext.length - 1];
-            if (s.match(/^[A-z]+:$/)) {
-                last = { key: s };
+            q = q.trim();
+            if (hasKey(q)) {
+                /* push stuff to context */
+                var _getKeyValue = getKeyValue(q),
+                    _getKeyValue2 = (0, _slicedToArray3.default)(_getKeyValue, 2),
+                    key = _getKeyValue2[0],
+                    value = _getKeyValue2[1];
+
+                queryContext.push({ key: key, value: exactOp(value) });
+            } else if (!last) {
+                /*take last from context and push to it*/
+                last = { value: exactOp(q) };
                 queryContext.push(last);
-            } else if (last && last.key === 'au:') {
-                last.value = name_regularization.apply(undefined, (0, _toConsumableArray3.default)(s.split(" ")));
-            } else if (last && last.key === 'cat:') {
-                if (s.match(/\s/)) throw new Error("\"cat:" + s + "\" is not parsing correctly because of the white space");
-                last.value = s;
             } else {
-                if (!last) {
-                    last = { key: "all:" };
-                    queryContext.push(last);
-                }
-                last.value = s.split(' ').reduce(polish('and'));
+                /*make last, and push to it*/
+                last.value.push(exactOp(q));
             }
         }
     } catch (err) {
@@ -135,67 +153,12 @@ function page_query_coersion(query) {
         }
     }
 
-    return queryContext.map(function (c) {
-        return c.key + "+" + c.value;
-    }).reduce(polish('and'));
+    return queryContext.map(function (_ref) {
+        var key = _ref.key,
+            value = _ref.value;
+        return join(key, value);
+    }).reduce(andOp);
 }
-
-// let r = page_query_coersion(["au:some", "first", "lastname", "ti:like", "this", "and", "that", 'cat:stat.ml']);
-// console.log(r);
-
-function api_query_coersion(query) {
-    var queryString = query.join(' ');
-    var segments = queryString.split(/\s*\b([A-z]*:)\s*/).filter(function (s) {
-        return !!s;
-    }); //filter empty strings
-    var queryContext = [];
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
-
-    try {
-        for (var _iterator2 = (0, _getIterator3.default)(segments), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var s = _step2.value;
-
-            var last = queryContext[queryContext.length - 1];
-            if (s.match(/^[A-z]+:$/)) {
-                last = { key: s };
-                queryContext.push(last);
-            } else if (last && last.key === 'au:') {
-                last.value = name_regularization.apply(undefined, (0, _toConsumableArray3.default)(s.split(" ")));
-            } else if (last && last.key === 'cat:') {
-                if (s.match(/\s/)) throw new Error("\"cat:" + s + "\" is not parsing correctly because of the white space");
-                last.value = s;
-            } else {
-                if (!last) {
-                    last = { key: "all:" };
-                    queryContext.push(last);
-                }
-                last.value = s.split(' ').reduce(infix('and'));
-            }
-        }
-    } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                _iterator2.return();
-            }
-        } finally {
-            if (_didIteratorError2) {
-                throw _iteratorError2;
-            }
-        }
-    }
-
-    return queryContext.map(function (c) {
-        return c.key + "\"" + c.value + "\"";
-    }).reduce(infix('and'));
-}
-
-// r = api_query_coersion(["au:some", "first", "lastname", "ti:like", "this", "and", "that", 'cat:stat.ml']);
-// console.log(r);
 
 function unique(a, k) {
     var a_ = void 0,
@@ -232,12 +195,12 @@ function coerceEntry(entry) {
         summary: entry.summary[0].trim().replace(/\s+/g, ' '),
         //todo: allow multiple links, do the same for Google Scholar. Reference standard bib from Mendeley.
         links: links,
-        url: links.filter(function (_ref) {
-            var title = _ref.title;
+        url: links.filter(function (_ref2) {
+            var title = _ref2.title;
             return !title;
         })[0].href,
-        pdfUrl: links.filter(function (_ref2) {
-            var title = _ref2.title;
+        pdfUrl: links.filter(function (_ref3) {
+            var title = _ref3.title;
             return title === "pdf";
         }).slice(-1)[0].href, //pick the last one.
         authors: unique(entry.author.map(function (author) {
@@ -253,7 +216,7 @@ function coerceEntry(entry) {
 
 function search(query, limit, sortBy) {
     return new _promise2.default(function (resolve, reject) {
-        _request2.default.get(makeUrl(api_query_coersion(query), limit, sortBy), function (err, resp, data) {
+        _request2.default.get(search_url(query, limit, sortBy), function (err, resp, data) {
             return _xml2js2.default.parseString(data, function (err, parsed) {
                 var results = void 0,
                     ref = void 0,
@@ -274,9 +237,21 @@ function search(query, limit, sortBy) {
 }
 
 function search_page(query) {
-    return "https://arxiv.org/find/all/1/" + page_query_coersion(query) + "/0/1/0/all/0/1";
+    return "https://arxiv.org/find/all/1/" + parse_query(query, function (k, v) {
+        return k ? k + ":+" + v : v;
+    }, function (s) {
+        return "EXACT+" + s.replace(/\s+/g, '_');
+    }, polish('and'), polish('or')) + "/0/1/0/all/0/1";
 }
 
 function search_url(query) {
-    return makeUrl(api_query_coersion(query));
+    for (var _len2 = arguments.length, rest = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        rest[_key2 - 1] = arguments[_key2];
+    }
+
+    return makeUrl.apply(undefined, [parse_query(query, function (k, v) {
+        return k ? k + ":" + v : v;
+    }, function (s) {
+        return "\"" + s + "\"";
+    }, infix('and'), infix('or'))].concat(rest));
 }
