@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.search = exports.ERR_SEARCH_HEAD = exports.ERR_SEARCH_END = exports.ERR_BOT = undefined;
+exports.search_url = exports.search = exports.ERR_SEARCH_HEAD = exports.ERR_SEARCH_END = exports.ERR_BOT = undefined;
 
 var _regenerator = require('babel-runtime/regenerator');
 
@@ -325,7 +325,8 @@ function sleep(ms) {
 }
 
 function search_page(query) {
+    if (isArray(query)) query = query.join(' ');
     return 'https://scholar.google.com/shcolar?q=' + query.replace(' ', "+");
 }
 
-var search_url = search_page;
+var search_url = exports.search_url = search_page;
