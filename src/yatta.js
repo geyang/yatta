@@ -86,7 +86,7 @@ async function search(query, options) {
         // todo: measure the actual height of the screen.
     };
 
-    let spinner = ora(`searching google scholar for ${chalk.green(query)}`).start();
+    let spinner = ora(`searching ${chalk.yellow(sourceName)} for ${chalk.green(query)}`).start();
     let results;
     try {
         ({results} = await search(query, options.limit));

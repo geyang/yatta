@@ -6,7 +6,9 @@
   "scripts": {
     "start": "src/yatta.js",
     "build": "babel src -d dist",
-    "pre-publish": "npm run build && git add . && git commit -m 'BUILD'"
+    "pre-publish": "npm run build && git add . && git commit -m 'BUILD'",
+    "patch": "npm run pre-publish && npm version patch && npm publish",
+    "dev:update": "npm cache clean --force && npm install -g yatta"
   },
   "preferGlobal": true,
   "bin": {
