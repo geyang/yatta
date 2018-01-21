@@ -37,7 +37,7 @@ function coerceQueryValue(key, value) {
  * */
 function coerceQuery(query) {
     return query.join('+')
-        .replace(/(^|\+)(au|ti|all|cat:)/g, "AND+$2")
+        .replace(/(^|\+)(au|ti|all|cat:)/g, "$1AND+$2")
         .replace(/:([^+])/g, ":+$1")
 }
 
