@@ -69,15 +69,15 @@ function parse_query(query, join, exactOp, andOp, orOp) {
         q = q.trim();
         if (hasKey(q)) {  /* push stuff to context */
             let [key, value] = getKeyValue(q);
-            queryContext.push({key, value: exactOp(value)})
+            queryContext.push({key, value: [exactOp(value)]})
         } else if (!last) {/*take last from context and push to it*/
-            last = {value: exactOp(q)};
+            last = {value: [exactOp(q)]};
             queryContext.push(last);
         } else { /*make last, and push to it*/
             last.value.push(exactOp(q))
         }
     }
-    return queryContext.map(({key, value}) => join(key, value)).reduce(andOp);
+    return queryContext.map(({key, value}) => join(key, value.reduce(andOp))).reduce(andOp);
 }
 
 
