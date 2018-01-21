@@ -67,7 +67,7 @@ var init = function () {
 
 var set = function () {
     var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(key, value, options) {
-        var _options$indexPath2, indexPath, restOpts, index, newIndex;
+        var _options$indexPath2, indexPath, restOpts, spinner, made, index, newIndex;
 
         return _regenerator2.default.wrap(function _callee2$(_context2) {
             while (1) {
@@ -81,9 +81,18 @@ var set = function () {
                             process.exit();
                         }
                         _options$indexPath2 = options.indexPath, indexPath = _options$indexPath2 === undefined ? _utils.INDEX_PATH : _options$indexPath2, restOpts = (0, _objectWithoutProperties3.default)(options, ["indexPath"]);
+                        spinner = ora("setting " + chalk.blue(indexPath) + " file").start();
 
                         if (!fs.existsSync(indexPath)) {
-                            console.error("index file " + indexPath + " does not exist. Use yatta init to initialize the file first!");
+                            spinner.fail("index file " + indexPath + " does not exist. Use yatta init to initialize the file first!");
+                            process.exit();
+                        }
+                        if (key === 'dir') try {
+                            made = fs.ensureDirSync(value);
+
+                            if (made) spinner.success("just created a new folder " + value + "!");
+                        } catch (err) {
+                            spinner.fail(err);
                             process.exit();
                         }
                         index = (0, _utils.load_index)(indexPath);
@@ -100,7 +109,7 @@ var set = function () {
                         }
                         process.exit();
 
-                    case 7:
+                    case 9:
                     case "end":
                         return _context2.stop();
                 }
