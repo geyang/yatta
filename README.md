@@ -1,9 +1,6 @@
 # yatta 
 
-### [:rocket::beer:Share Me on HackerNews!:fire::star:](https://news.ycombinator.com/submitlink?u=https://github.com/episodeyang/yatta&t=Yatta%20|%20NPM-for-science-papers)
-
-yatta is a cli tool that manages your paper PDFs. It is `npm` for papers. 
-
+yatta is a cli tool that manages your paper PDFs. It is `npm` for papers.     [:rocket::beer:Share Me on HackerNews!:fire::star:](https://news.ycombinator.com/submitlink?u=https://github.com/episodeyang/yatta&t=Yatta%20|%20NPM-for-science-papers)
 - **Have you ever wanted to save paper PDFs in your work folder?**
 - **Have you ever had duplicates of the same PDF in different project folders?**
 - **Have you ever wanted to share a list of readings with someone, except that your own PDFs all have personal notes and highlights?**
