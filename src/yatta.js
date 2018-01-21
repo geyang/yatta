@@ -119,6 +119,9 @@ async function search(query, options) {
     spinner.stop();
     let choices = results.map(simple).slice(0, options.limit);
 
+
+    let selection, prompt;
+
     function exit(ch, key) {
         if (key && EXIT_KEYS.indexOf(key.name) === -1) return;
         prompt.ui.close();
@@ -126,10 +129,8 @@ async function search(query, options) {
         process.stdin.removeListener('keypress', exit);
     }
 
-    let selection;
-
     async function show_list() {
-        let prompt = inquirer.prompt({
+        prompt = inquirer.prompt({
             ...search_prompt,
             name: "selection",
             choices
