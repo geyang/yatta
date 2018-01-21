@@ -327,3 +327,5 @@ function sleep(ms) {
 function search_page(query) {
     return 'https://scholar.google.com/shcolar?q=' + query.replace(' ', "+");
 }
+
+var search_url = search_page;

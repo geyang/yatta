@@ -145,7 +145,7 @@ var list = function () {
 
 var search = function () {
     var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(query, options) {
-        var index, dir, search, sourceName, search_page, search_prompt, spinner, results, _ref5, choices, exit, prompt, _ref6, selection, tasks;
+        var index, dir, search, sourceName, search_page, search_url, search_prompt, spinner, results, _ref5, choices, exit, prompt, _ref6, selection, tasks;
 
         return _regenerator2.default.wrap(function _callee5$(_context5) {
             while (1) {
@@ -175,15 +175,16 @@ var search = function () {
                         search = backends.SOURCES[options.source];
                         sourceName = backends.NAMES[options.source];
                         search_page = backends.SEARCH_PAGES[options.source];
+                        search_url = backends.SEARCH_URL[options.source];
 
                         if (!(!search && typeof search === "function")) {
-                            _context5.next = 11;
+                            _context5.next = 12;
                             break;
                         }
 
                         return _context5.abrupt("return", console.error(chalk.red("OPTION_ERROR: options.source is not in the white list " + backends.SOURCES)));
 
-                    case 11:
+                    case 12:
                         search_prompt = {
                             message: "Results by " + sourceName,
                             type: "checkbox",
@@ -194,27 +195,29 @@ var search = function () {
 
 
                         console.log("this search could be found at\n" + search_page(query));
+                        console.log("api call at \n" + search_url(query));
+
                         spinner = ora("searching " + chalk.yellow(sourceName) + " for " + chalk.green(query.join(' '))).start();
                         results = void 0;
-                        _context5.prev = 15;
-                        _context5.next = 18;
+                        _context5.prev = 17;
+                        _context5.next = 20;
                         return search(query, options.limit);
 
-                    case 18:
+                    case 20:
                         _ref5 = _context5.sent;
                         results = _ref5.results;
-                        _context5.next = 27;
+                        _context5.next = 29;
                         break;
 
-                    case 22:
-                        _context5.prev = 22;
-                        _context5.t0 = _context5["catch"](15);
+                    case 24:
+                        _context5.prev = 24;
+                        _context5.t0 = _context5["catch"](17);
 
                         spinner.stop();
                         if (_context5.t0.code === _googleScholar.ERR_BOT) console.error(chalk.green("\nYou are detected as a bot\n"), _context5.t0);else console.error(chalk.red('\nsomething went wrong during search\n'), _context5.t0);
                         process.exit();
 
-                    case 27:
+                    case 29:
                         spinner.stop();
                         choices = results.map(_utils.simple).slice(0, options.limit);
                         prompt = inquirer.prompt((0, _extends3.default)({}, search_prompt, {
@@ -224,10 +227,10 @@ var search = function () {
 
 
                         process.stdin.on('keypress', exit);
-                        _context5.next = 33;
+                        _context5.next = 35;
                         return prompt;
 
-                    case 33:
+                    case 35:
                         _ref6 = _context5.sent;
                         selection = _ref6.selection;
 
@@ -315,19 +318,19 @@ var search = function () {
                                 return _ref7.apply(this, arguments);
                             };
                         }());
-                        _context5.next = 40;
+                        _context5.next = 42;
                         return _promise2.default.all(tasks);
 
-                    case 40:
+                    case 42:
                         spinner.stop();
                         process.exit();
 
-                    case 42:
+                    case 44:
                     case "end":
                         return _context5.stop();
                 }
             }
-        }, _callee5, this, [[15, 22]]);
+        }, _callee5, this, [[17, 24]]);
     }));
 
     return function search(_x7, _x8) {

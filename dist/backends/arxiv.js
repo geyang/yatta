@@ -18,6 +18,7 @@ var _getIterator3 = _interopRequireDefault(_getIterator2);
 
 exports.search = search;
 exports.search_page = search_page;
+exports.search_url = search_url;
 
 var _request = require("request");
 
@@ -64,6 +65,12 @@ function polish(op) {
     };
 }
 
+function infix(op) {
+    return function (acc, b, index) {
+        return index === 1 ? "(" + acc + " " + op.trim().toUpperCase() + " " + b + ")" : "(" + b + " " + op.trim().toUpperCase() + " " + acc + ")";
+    };
+}
+
 // console.log('electrons on helium'.split(' ').reduce(polish('and')));
 
 function name_regularization() {
@@ -82,7 +89,7 @@ function name_regularization() {
  * query: a list of strings, of the form ["au:some", "text", "actual-lastname", "ti:like" "this", "all:typical query", "cat:cs"]
  * returns AND+au:+some+text+AND+ti:+like+this
  * */
-function coerceQuery(query) {
+function page_query_coersion(query) {
     var queryString = query.join(' ');
     var segments = queryString.split(/\s*\b([A-z]*:)\s*/).filter(function (s) {
         return !!s;
@@ -133,7 +140,61 @@ function coerceQuery(query) {
     }).reduce(polish('and'));
 }
 
-// const r = coerceQuery(["au:some", "first", "lastname", "ti:like", "this", "and", "that", 'cat:stat.ml']);
+// let r = page_query_coersion(["au:some", "first", "lastname", "ti:like", "this", "and", "that", 'cat:stat.ml']);
+// console.log(r);
+
+function api_query_coersion(query) {
+    var queryString = query.join(' ');
+    var segments = queryString.split(/\s*\b([A-z]*:)\s*/).filter(function (s) {
+        return !!s;
+    }); //filter empty strings
+    var queryContext = [];
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+        for (var _iterator2 = (0, _getIterator3.default)(segments), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var s = _step2.value;
+
+            var last = queryContext[queryContext.length - 1];
+            if (s.match(/^[A-z]+:$/)) {
+                last = { key: s };
+                queryContext.push(last);
+            } else if (last && last.key === 'au:') {
+                last.value = name_regularization.apply(undefined, (0, _toConsumableArray3.default)(s.split(" ")));
+            } else if (last && last.key === 'cat:') {
+                if (s.match(/\s/)) throw new Error("\"cat:" + s + "\" is not parsing correctly because of the white space");
+                last.value = s;
+            } else {
+                if (!last) {
+                    last = { key: "all:" };
+                    queryContext.push(last);
+                }
+                last.value = s.split(' ').reduce(infix('and'));
+            }
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
+            }
+        } finally {
+            if (_didIteratorError2) {
+                throw _iteratorError2;
+            }
+        }
+    }
+
+    return queryContext.map(function (c) {
+        return c.key + "\"" + c.value + "\"";
+    }).reduce(infix('and'));
+}
+
+// r = api_query_coersion(["au:some", "first", "lastname", "ti:like", "this", "and", "that", 'cat:stat.ml']);
 // console.log(r);
 
 function unique(a, k) {
@@ -192,7 +253,7 @@ function coerceEntry(entry) {
 
 function search(query, limit, sortBy) {
     return new _promise2.default(function (resolve, reject) {
-        _request2.default.get(makeUrl(coerceQuery(query), limit, sortBy), function (err, resp, data) {
+        _request2.default.get(makeUrl(api_query_coersion(query), limit, sortBy), function (err, resp, data) {
             return _xml2js2.default.parseString(data, function (err, parsed) {
                 var results = void 0,
                     ref = void 0,
@@ -213,5 +274,9 @@ function search(query, limit, sortBy) {
 }
 
 function search_page(query) {
-    return "https://arxiv.org/find/all/1/" + coerceQuery(query) + "/0/1/0/all/0/1";
+    return "https://arxiv.org/find/all/1/" + page_query_coersion(query) + "/0/1/0/all/0/1";
+}
+
+function search_url(query) {
+    return makeUrl(api_query_coersion(query));
 }
