@@ -27,8 +27,10 @@ function coerceQueryValue(key, value) {
 }
 
 function polish(op) {
-    return (acc, b) => `${op.trim().toUpperCase()}+${b}+${acc}`;
+    return (acc, b, index) => op.trim().toUpperCase() + `+` + ((index === 1) ? `${acc}+${b}` : `${b}+${acc}`);
 }
+
+// console.log('electrons on helium'.split(' ').reduce(polish('and')));
 
 function name_regularization(...names) {
     if (names.length <= 1) return names.join('_');
