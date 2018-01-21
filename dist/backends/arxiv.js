@@ -128,10 +128,10 @@ function parse_query(query, join, exactOp, andOp, orOp) {
                     key = _getKeyValue2[0],
                     value = _getKeyValue2[1];
 
-                queryContext.push({ key: key, value: exactOp(value) });
+                queryContext.push({ key: key, value: [exactOp(value)] });
             } else if (!last) {
                 /*take last from context and push to it*/
-                last = { value: exactOp(q) };
+                last = { value: [exactOp(q)] };
                 queryContext.push(last);
             } else {
                 /*make last, and push to it*/
@@ -156,7 +156,7 @@ function parse_query(query, join, exactOp, andOp, orOp) {
     return queryContext.map(function (_ref) {
         var key = _ref.key,
             value = _ref.value;
-        return join(key, value);
+        return join(key, value.reduce(andOp));
     }).reduce(andOp);
 }
 
