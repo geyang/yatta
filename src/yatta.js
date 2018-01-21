@@ -197,7 +197,16 @@ program
 
 program
     .command('search <query...>', {isDefault: true})
-    .description('Search for papers with the specified search engine.')
+    .description(`Search for papers with google-scholar and arxiv!
+
+  Examples:
+      ~> ${chalk.green('yatta search -s arxiv "compress and control" au:bellemare"')}
+      # >> generates a query ${chalk.blue('("compress and control" AND au:bellemare)')}
+      ~> ${chalk.green('yatta search -s arxiv electrons on helium schuster')}
+      # >> generates a query ${chalk.blue('(schuster AND (helium AND (electrons AND on)))')}
+      
+  We use a carefully designed parsing logic to generate the query AST for arxiv.org.
+  This is a LOT easier to use than the clunky arxiv website!`)
     // todo: do validation here in the spec.
     .option(`-s --source <${Object.keys(backends.SOURCES)}>`,
         `The search backend to use, choose among ${Object.keys(backends.SOURCES)}. Default is ${backends.GOOGLE_SCHOLAR}`,

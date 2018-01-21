@@ -240,7 +240,8 @@ export function all(query) {
 }
 
 export function search_page(query) {
+    if (isArray(query)) query = query.join(' ');
     return `https://scholar.google.com/shcolar?q=${query.replace(' ', "+")}`;
 }
 
-const search_url = search_page;
+export const search_url = search_page;
