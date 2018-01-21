@@ -34,9 +34,12 @@ var init = function () {
             while (1) {
                 switch (_context.prev = _context.next) {
                     case 0:
-                        _options$indexPath = options.indexPath, indexPath = _options$indexPath === undefined ? INDEX_PATH : _options$indexPath, restOpts = (0, _objectWithoutProperties3.default)(options, ["indexPath"]);
+                        _options$indexPath = options.indexPath, indexPath = _options$indexPath === undefined ? _utils.INDEX_PATH : _options$indexPath, restOpts = (0, _objectWithoutProperties3.default)(options, ["indexPath"]);
 
-                        if (fs.existsSync(indexPath)) console.error("index file " + indexPath + " already exists.");else (0, _utils.update_index)(indexPath);
+                        if (fs.existsSync(indexPath)) console.error("index file " + indexPath + " already exists.");else {
+                            (0, _utils.init_index)(indexPath);
+                            console.log(chalk.green("✓"), "index file " + indexPath + " is created!");
+                        }
                         return _context.abrupt("return", process.exit());
 
                     case 3:
@@ -60,17 +63,40 @@ var init = function () {
 
 var set = function () {
     var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(key, value, options) {
-        var _options$indexPath2, indexPath, restOpts;
+        var _options$indexPath2, indexPath, restOpts, index, newIndex;
 
         return _regenerator2.default.wrap(function _callee2$(_context2) {
             while (1) {
                 switch (_context2.prev = _context2.next) {
                     case 0:
-                        _options$indexPath2 = options.indexPath, indexPath = _options$indexPath2 === undefined ? INDEX_PATH : _options$indexPath2, restOpts = (0, _objectWithoutProperties3.default)(options, ["indexPath"]);
+                        //todo: use schema instead of this crapy hack
+                        if (value === "true") value = true;else if (value === 'false') value = false;else if (value.match(/^[0-9]*(\.)[.0-9]*$/)) value = parseFloat(value);
 
-                        if (fs.existsSync(indexPath)) console.error("index file " + indexPath + " already exists.");else (0, _utils.update_index)(indexPath);
+                        if (typeof (0, _utils.dot)(_utils.DEFAULT_CONFIG, key.split('.')) === 'undefined') {
+                            console.error("dot.key " + key + " does not exist in the default configuration!");
+                            process.exit();
+                        }
+                        _options$indexPath2 = options.indexPath, indexPath = _options$indexPath2 === undefined ? _utils.INDEX_PATH : _options$indexPath2, restOpts = (0, _objectWithoutProperties3.default)(options, ["indexPath"]);
 
-                    case 2:
+                        if (!fs.existsSync(indexPath)) {
+                            console.error("index file " + indexPath + " does not exist. Use yatta init to initialize the file first!");
+                            process.exit();
+                        }
+                        index = (0, _utils.load_index)(indexPath);
+
+                        try {
+                            //todo: need to add casting, s.a. "true" => true
+                            newIndex = (0, _utils.dot_update)(index, key.split('.'), value);
+
+                            (0, _utils.dump_index)(indexPath, newIndex);
+                            console.log(chalk.green("✓"), "index file " + indexPath + " has been updated!");
+                            console.log(newIndex);
+                        } catch (err) {
+                            console.error(err);
+                        }
+                        process.exit();
+
+                    case 7:
                     case "end":
                         return _context2.stop();
                 }
@@ -254,20 +280,20 @@ var open = require('opn');
 
 
 var EXIT_KEYS = ["escape", "q"];
-var ENTRY_LIMIT = 15;
-var INDEX_PATH = "yatta.yml";
 
 program.version(package_config.version).option('-d, --directory', 'the directory to apply yatta. Default to ').option('-R, --recursive', 'flag to apply yatta recursively');
 
-program.command('init', { isDefault: true }).option('--index-path <index path>', "path for the yatta.yml index file", INDEX_PATH)
+program.command('init').option('--index-path <index path>', "path for the yatta.yml index file", _utils.INDEX_PATH)
 // we DO NOT offer config option to keep it simple
 // .option('-O --open', "open the downloaded pdf file")
 .action(init);
 
+program.command('set <key.path> <value>').description("modifies the configuration file, located at " + _utils.INDEX_PATH + " by default. Use dot separated path string as the key.").option('--index-path <index path>', "path for the " + _utils.INDEX_PATH + " index file", _utils.INDEX_PATH).action(set);
+
 program.command('search <query>', { isDefault: true }).description('Search for papers with the specified search engine.')
 // todo: do validation here in the spec.
-.option("-s --source <" + (0, _keys2.default)(backends.SOURCES) + ">", "The search backend to use, choose among " + (0, _keys2.default)(backends.SOURCES), function (s) {
+.option("-s --source <" + (0, _keys2.default)(backends.SOURCES) + ">", "The search backend to use, choose among " + (0, _keys2.default)(backends.SOURCES) + ". Default is " + backends.GOOGLE_SCHOLAR, function (s) {
     return s.toLowerCase();
-}, backends.GOOGLE_SCHOLAR).option('--limit <limit>', "limit for the number of results to show on each search", parseInt, ENTRY_LIMIT).option('--index-path <index path>', "path for the yatta.yml index file", INDEX_PATH).option('-O --open', "open the downloaded pdf file").action(search);
+}).option('--limit <limit>', "limit for the number of results to show on each search. Default is " + _utils.ENTRY_LIMIT, parseInt).option('--index-path <index path>', "path for the yatta.yml index file", _utils.INDEX_PATH).option('-O --open', "open the downloaded pdf file").action(search);
 
 program.parse(process.argv);

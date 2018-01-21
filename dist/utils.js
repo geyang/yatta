@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.DEFAULT_CONFIG = exports.DEFAULT_CONFIG_INIT = exports.DEFAULT_DIR = exports.ENTRY_LIMIT = exports.INDEX_PATH = undefined;
 
 var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
 
@@ -11,6 +12,18 @@ var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 var _taggedTemplateLiteral2 = require("babel-runtime/helpers/taggedTemplateLiteral");
 
 var _taggedTemplateLiteral3 = _interopRequireDefault(_taggedTemplateLiteral2);
+
+var _defineProperty2 = require("babel-runtime/helpers/defineProperty");
+
+var _defineProperty3 = _interopRequireDefault(_defineProperty2);
+
+var _extends4 = require("babel-runtime/helpers/extends");
+
+var _extends5 = _interopRequireDefault(_extends4);
+
+var _stringify = require("babel-runtime/core-js/json/stringify");
+
+var _stringify2 = _interopRequireDefault(_stringify);
 
 var _typeof2 = require("babel-runtime/helpers/typeof");
 
@@ -24,11 +37,15 @@ var _templateObject = (0, _taggedTemplateLiteral3.default)(["Failed to read inde
 
 
 exports.sleep = sleep;
+exports.dot = dot;
+exports.dot_update = dot_update;
 exports.$aus = $aus;
 exports.simple = simple;
 exports.url2fn = url2fn;
 exports.curl = curl;
 exports.load_index = load_index;
+exports.dump_index = dump_index;
+exports.init_index = init_index;
 exports.update_index = update_index;
 
 var _chalk = require("chalk");
@@ -57,12 +74,40 @@ var _fsExtra = require("fs-extra");
 
 var _fsExtra2 = _interopRequireDefault(_fsExtra);
 
+var _backends = require("../dist/backends");
+
+var backends = _interopRequireWildcard(_backends);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function sleep(ms) {
     return new _promise2.default(function (resolve) {
         return setTimeout(resolve, ms);
     });
+}
+
+function isArray(a) {
+    return (typeof a === "undefined" ? "undefined" : (0, _typeof3.default)(a)) === "object" && typeof a.length === 'number';
+}
+
+function check_path_array(path) {
+    if (!isArray(path) || !path.length) throw new Error("Path is ill-formed " + (0, _stringify2.default)(path));
+}
+
+function dot(obj, path) {
+    check_path_array(path);
+    var key = path[0];
+    var v = obj[key];
+    if (path.length === 1) return v;else return dot_update(v, path.slice(1));
+}
+
+function dot_update(obj, path, value) {
+    check_path_array(path);
+    var key = path[0];
+    var v = obj[key];
+    if (path.length === 1) return (0, _extends5.default)({}, obj, (0, _defineProperty3.default)({}, key, value));else return (0, _extends5.default)({}, obj, (0, _defineProperty3.default)({}, key, dot_update(v, path.slice(1), value)));
 }
 
 function $aus(authors) {
@@ -105,8 +150,21 @@ function curl(url, targetPath) {
 // curl ("https://arxiv.org/pdf/1606.04460", "test.pdf");
 
 
-var DEFAULT_DIR = "./";
-var DEFAULT_INDEX = { dir: DEFAULT_DIR, search: {} };
+var INDEX_PATH = exports.INDEX_PATH = "yatta.yml";
+var ENTRY_LIMIT = exports.ENTRY_LIMIT = 15;
+var DEFAULT_DIR = exports.DEFAULT_DIR = "./";
+var DEFAULT_CONFIG_INIT = exports.DEFAULT_CONFIG_INIT = {
+    dir: DEFAULT_DIR,
+    search: {}
+};
+var DEFAULT_CONFIG = exports.DEFAULT_CONFIG = {
+    dir: DEFAULT_DIR,
+    search: {
+        limit: ENTRY_LIMIT,
+        open: true,
+        source: backends.ARXIV
+    }
+};
 
 function load_index(indexPath) {
     var index = void 0,
@@ -118,13 +176,22 @@ function load_index(indexPath) {
         load_default = true;
     }
     if (!content || load_default) {
-        index = DEFAULT_INDEX;
+        index = DEFAULT_CONFIG;
         console.log(_chalk2.default.green(indexPath + " yatta config file doesn't exist! Loading default."));
     } else {
         index = _jsYaml2.default.safeLoad(content);
         if ((typeof index === "undefined" ? "undefined" : (0, _typeof3.default)(index)) !== 'object') throw new Error("index file " + indexPath + " seems to be ill-formed.");
     }
     return index;
+}
+
+function dump_index(indexPath, index) {
+    var content = _jsYaml2.default.safeDump(index, { 'sortKeys': true });
+    _fsExtra2.default.writeFileSync(indexPath, content);
+}
+
+function init_index(indexPath) {
+    dump_index(indexPath, DEFAULT_CONFIG_INIT);
 }
 
 function update_index(indexPath, entry) {
@@ -139,8 +206,7 @@ function update_index(indexPath, entry) {
     // todo: use dictionary instead;
     if (!index.papers) index.papers = [];
     if (!!entry) index.papers = [].concat((0, _toConsumableArray3.default)(index.papers), [entry]);
-    var content = _jsYaml2.default.safeDump(index, { 'sortKeys': true });
-    _fsExtra2.default.writeFileSync(indexPath, content);
+    dump_index(indexPath, index);
 }
 
 // update_index(".yatta.yml", {name: "test"});
