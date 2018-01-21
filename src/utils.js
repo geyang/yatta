@@ -6,11 +6,35 @@ import path from "path";
 import http from "http";
 import yaml from "js-yaml";
 import fs from "fs-extra";
+import * as backends from "../dist/backends";
 
 export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function isArray(a) {
+    return (typeof a === "object" && typeof a.length === 'number');
+}
+
+function check_path_array(path) {
+    if (!isArray(path) || !path.length) throw new Error(`Path is ill-formed ${JSON.stringify(path)}`);
+}
+
+export function dot(obj, path) {
+    check_path_array(path);
+    let key = path[0];
+    let v = obj[key];
+    if (path.length === 1) return v;
+    else return dot_update(v, path.slice(1));
+}
+
+export function dot_update(obj, path, value) {
+    check_path_array(path);
+    let key = path[0];
+    let v = obj[key];
+    if (path.length === 1) return ({...obj, [key]: value});
+    else return ({...obj, [key]: dot_update(v, path.slice(1), value)});
+}
 
 export function $aus(authors) {
     const first_author = authors[0];
@@ -47,8 +71,21 @@ export function curl(url, targetPath) {
 // curl ("https://arxiv.org/pdf/1606.04460", "test.pdf");
 
 
-const DEFAULT_DIR = "./";
-const DEFAULT_INDEX = {dir: DEFAULT_DIR, search: {}};
+export const INDEX_PATH = "yatta.yml";
+export const ENTRY_LIMIT = 15;
+export const DEFAULT_DIR = "./";
+export const DEFAULT_CONFIG_INIT = {
+    dir: DEFAULT_DIR,
+    search: {}
+};
+export const DEFAULT_CONFIG = {
+    dir: DEFAULT_DIR,
+    search: {
+        limit: ENTRY_LIMIT,
+        open: true,
+        source: backends.ARXIV,
+    }
+};
 
 export function load_index(indexPath) {
     let index, load_default, content;
@@ -58,7 +95,7 @@ export function load_index(indexPath) {
         load_default = true;
     }
     if (!content || load_default) {
-        index = DEFAULT_INDEX;
+        index = DEFAULT_CONFIG;
         console.log(chalk.green(`${indexPath} yatta config file doesn't exist! Loading default.`))
     }
     else {
@@ -67,6 +104,15 @@ export function load_index(indexPath) {
             throw new Error(`index file ${indexPath} seems to be ill-formed.`);
     }
     return index
+}
+
+export function dump_index(indexPath, index) {
+    const content = yaml.safeDump(index, {'sortKeys': true});
+    fs.writeFileSync(indexPath, content);
+}
+
+export function init_index(indexPath) {
+    dump_index(indexPath, DEFAULT_CONFIG_INIT);
 }
 
 export function update_index(indexPath, entry) {
@@ -83,8 +129,8 @@ export function update_index(indexPath, entry) {
     // todo: use dictionary instead;
     if (!index.papers) index.papers = [];
     if (!!entry) index.papers = [...index.papers, entry];
-    const content = yaml.safeDump(index, {'sortKeys': true});
-    fs.writeFileSync(indexPath, content);
+    dump_index(indexPath, index);
 }
+
 
 // update_index(".yatta.yml", {name: "test"});

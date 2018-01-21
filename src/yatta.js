@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
-import {curl, load_index, simple, update_index, url2fn} from "./utils";
+import {
+    curl, DEFAULT_CONFIG, dot, dot_update, dump_index, ENTRY_LIMIT, INDEX_PATH,
+    init_index, load_index, simple, update_index, url2fn
+} from "./utils";
 import {sleep} from "../dist/utils";
 import * as backends from "./backends";
 import {ERR_BOT} from "./backends/google-scholar";
@@ -18,16 +21,17 @@ const open = require('opn');
 
 
 const EXIT_KEYS = ["escape", "q"];
-const ENTRY_LIMIT = 15;
-const INDEX_PATH = "yatta.yml";
+
 
 /** yatta init --index-path ".yatta" */
 async function init(options) {
     const {indexPath = INDEX_PATH, ...restOpts} = options;
     if (fs.existsSync(indexPath))
         console.error(`index file ${indexPath} already exists.`);
-    else
-        update_index(indexPath);
+    else {
+        init_index(indexPath);
+        console.log(chalk.green("✓"), `index file ${indexPath} is created!`);
+    }
     return process.exit()
 }
 
@@ -36,11 +40,31 @@ async function init(options) {
  * yatta set search.limit 100
  * */
 async function set(key, value, options) {
+    //todo: use schema instead of this crapy hack
+    if (value === "true") value = true;
+    else if (value === 'false') value = false;
+    else if (value.match(/^[0-9]*(\.)[.0-9]*$/)) value = parseFloat(value);
+
+    if (typeof dot(DEFAULT_CONFIG, key.split('.')) === 'undefined') {
+        console.error(`dot.key ${key} does not exist in the default configuration!`);
+        process.exit();
+    }
     const {indexPath = INDEX_PATH, ...restOpts} = options;
-    if (fs.existsSync(indexPath))
-        console.error(`index file ${indexPath} already exists.`);
-    else
-        update_index(indexPath);
+    if (!fs.existsSync(indexPath)) {
+        console.error(`index file ${indexPath} does not exist. Use yatta init to initialize the file first!`);
+        process.exit()
+    }
+    let index = load_index(indexPath);
+    try {
+        //todo: need to add casting, s.a. "true" => true
+        let newIndex = dot_update(index, key.split('.'), value);
+        dump_index(indexPath, newIndex);
+        console.log(chalk.green("✓"), `index file ${indexPath} has been updated!`);
+        console.log(newIndex);
+    } catch (err) {
+        console.error(err);
+    }
+    process.exit();
 }
 
 async function search(query, options) {
@@ -129,20 +153,26 @@ program
     .option('-R, --recursive', 'flag to apply yatta recursively');
 
 program
-    .command('init', {isDefault: true})
+    .command('init')
     .option('--index-path <index path>', "path for the yatta.yml index file", INDEX_PATH)
     // we DO NOT offer config option to keep it simple
     // .option('-O --open', "open the downloaded pdf file")
     .action(init);
 
 program
+    .command('set <key.path> <value>')
+    .description(`modifies the configuration file, located at ${INDEX_PATH} by default. Use dot separated path string as the key.`)
+    .option('--index-path <index path>', `path for the ${INDEX_PATH} index file`, INDEX_PATH)
+    .action(set);
+
+program
     .command('search <query>', {isDefault: true})
     .description('Search for papers with the specified search engine.')
     // todo: do validation here in the spec.
     .option(`-s --source <${Object.keys(backends.SOURCES)}>`,
-        `The search backend to use, choose among ${Object.keys(backends.SOURCES)}`,
-        (s) => s.toLowerCase(), backends.GOOGLE_SCHOLAR)
-    .option('--limit <limit>', "limit for the number of results to show on each search", parseInt, ENTRY_LIMIT)
+        `The search backend to use, choose among ${Object.keys(backends.SOURCES)}. Default is ${backends.GOOGLE_SCHOLAR}`,
+        (s) => s.toLowerCase())
+    .option('--limit <limit>', `limit for the number of results to show on each search. Default is ${ENTRY_LIMIT}`, parseInt)
     .option('--index-path <index path>', "path for the yatta.yml index file", INDEX_PATH)
     .option('-O --open', "open the downloaded pdf file")
     .action(search);
