@@ -147,7 +147,7 @@ var search = function () {
     var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee6(query, options) {
         var show_list = function () {
             var _ref6 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4() {
-                var prompt, _ref7;
+                var _ref7;
 
                 return _regenerator2.default.wrap(function _callee4$(_context4) {
                     while (1) {
@@ -157,7 +157,6 @@ var search = function () {
                                     name: "selection",
                                     choices: choices
                                 }));
-
 
                                 process.stdin.on('keypress', exit);
                                 _context4.next = 4;
@@ -182,7 +181,7 @@ var search = function () {
             };
         }();
 
-        var index, dir, search, sourceName, search_page, search_url, search_prompt, spinner, results, _ref5, choices, exit, selection, tasks;
+        var index, dir, search, sourceName, search_page, search_url, search_prompt, spinner, results, _ref5, choices, selection, prompt, exit, tasks;
 
         return _regenerator2.default.wrap(function _callee6$(_context6) {
             while (1) {
@@ -257,7 +256,7 @@ var search = function () {
                     case 29:
                         spinner.stop();
                         choices = results.map(_utils.simple).slice(0, options.limit);
-                        selection = void 0;
+                        selection = void 0, prompt = void 0;
 
                     case 32:
                         if (!true) {
