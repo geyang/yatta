@@ -31,18 +31,19 @@ function coerceQueryValue(key, value) {
 }
 
 function coerceQuery(query) {
-    const queries = [];
-    if (typeof query === "string")
-        query = {q: query};
-    let v;
-    for (let k in query) if (query.hasOwnProperty(k)) {
-        v = query[k];
-        k = coerceQueryKey(k);
-        v = coerceQueryValue(k, v);
-        queries.push([k, v].join(':'));
+    if (typeof query === "string") {
+        return query;
+    } else {
+        const queries = [];
+        let v;
+        for (let k in query) if (query.hasOwnProperty(k)) {
+            v = query[k];
+            k = coerceQueryKey(k);
+            v = coerceQueryValue(k, v);
+            queries.push([k, v].join(':'));
+        }
+        return queries.join('+AND+');
     }
-
-    return queries.join('+AND+');
 }
 
 function unique(a, k) {
