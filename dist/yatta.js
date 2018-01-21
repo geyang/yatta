@@ -126,7 +126,7 @@ var search = function () {
 
                         index = (0, _utils.load_index)(options.indexPath);
 
-                        options = (0, _extends3.default)({}, index.search || {}, options);
+                        options = (0, _extends3.default)({}, _utils.DEFAULT_CONFIG.search, index.search || {}, options);
 
                         if (options.limit) {
                             _context3.next = 5;
