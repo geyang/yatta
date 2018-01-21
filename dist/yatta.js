@@ -155,7 +155,7 @@ var search = function () {
                             pageSize: options.limit * 2 // when this is less than the real screen estate, it gets very ugly.
                             // todo: measure the actual height of the screen.
                         };
-                        spinner = ora("searching google scholar for " + chalk.green(query)).start();
+                        spinner = ora("searching " + chalk.yellow(sourceName) + " for " + chalk.green(query)).start();
                         results = void 0;
                         _context3.prev = 12;
                         _context3.next = 15;
