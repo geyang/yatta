@@ -12,7 +12,7 @@ export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function isArray(a) {
+export function isArray(a) {
     return (typeof a === "object" && typeof a.length === 'number');
 }
 

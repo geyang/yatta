@@ -68,6 +68,17 @@ async function set(key, value, options) {
     process.exit();
 }
 
+async function list(query, options) {
+    const {indexPath = INDEX_PATH, ...restOpts} = options;
+    if (fs.existsSync(indexPath))
+        console.error(`index file ${indexPath} already exists.`);
+    else {
+        let index = load_index(indexPath);
+        console.log(chalk.green("✓"), `index file ${indexPath} is created!`);
+    }
+    return process.exit()
+}
+
 async function search(query, options) {
     const index = load_index(options.indexPath);
     const dir = index.dir || DEFAULT_CONFIG.dir;
@@ -88,7 +99,7 @@ async function search(query, options) {
         // todo: measure the actual height of the screen
     };
 
-    let spinner = ora(`searching ${chalk.yellow(sourceName)} for ${chalk.green(query)}`).start();
+    let spinner = ora(`searching ${chalk.yellow(sourceName)} for ${chalk.green(query.join(' '))}`).start();
     let results;
     try {
         ({results} = await search(query, options.limit));
@@ -180,7 +191,7 @@ program
     .action(set);
 
 program
-    .command('search <query>', {isDefault: true})
+    .command('search <query...>', {isDefault: true})
     .description('Search for papers with the specified search engine.')
     // todo: do validation here in the spec.
     .option(`-s --source <${Object.keys(backends.SOURCES)}>`,

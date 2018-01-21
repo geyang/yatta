@@ -1,6 +1,7 @@
 /** Created by ge on 1/20/18. */
 import request from "request";
 import xml2js from "xml2js";
+import {isArray} from "../utils";
 
 function makeUrl(query, max_results = 100, sort_by = "submittedDate") {
     return `http://export.arxiv.org/api/query?sortBy=${sort_by}&max_results=${max_results}&search_query=${query}`;
@@ -30,21 +31,18 @@ function coerceQueryValue(key, value) {
     }
 }
 
+/**
+ * query: a list of strings, of the form ["au:some", "text" "ti:like" "this"]
+ * returns AND+au:+some+text+AND+ti:+like+this
+ * */
 function coerceQuery(query) {
-    if (typeof query === "string") {
-        return query;
-    } else {
-        const queries = [];
-        let v;
-        for (let k in query) if (query.hasOwnProperty(k)) {
-            v = query[k];
-            k = coerceQueryKey(k);
-            v = coerceQueryValue(k, v);
-            queries.push([k, v].join(':'));
-        }
-        return queries.join('+AND+');
-    }
+    return query.join('+')
+        .replace(/(^|\+)(au|ti|all|cat:)/g, "AND+$2")
+        .replace(/:[^+]/g, ":+")
 }
+
+// const r = coerceQuery(["au:some", "text", "ti:like", "this"]);
+// console.log(r);
 
 function unique(a, k) {
     let a_, i, j, known, len;
@@ -109,3 +107,6 @@ export function search(query, limit, sortBy) {
     });
 }
 
+export function search_page(query) {
+    return `https://arxiv.org/find/all/1/${query}/0/1/0/all/0/1`
+}

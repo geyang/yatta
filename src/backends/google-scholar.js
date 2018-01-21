@@ -1,4 +1,5 @@
 'use strict';
+let isArray  = require("../utils").isArray;
 
 let request = require('request');
 let cheerio = require('cheerio');
@@ -189,7 +190,9 @@ function sleep(ms) {
     pdfUrl: 'https://pdfs.semanticscholar.org/831c/f8dacbe5e9f6d368427c4e14316e429a34b5.pdf' },
 * */
 
+
 export async function search(query, limit) {
+    if (isArray(query)) query = query.join(' ');
     if (typeof query !== 'string') throw new Error("only string query is allowed");
     let results = [];
     let r = await _search(query);
@@ -236,3 +239,6 @@ export function all(query) {
         })
 }
 
+export function search_page(query) {
+    return `https://scholar.google.com/shcolar?q=${query.replace(' ', "+")}`;
+}
