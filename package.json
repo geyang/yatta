@@ -1,6 +1,6 @@
 {
   "name": "yatta",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "NPM for your papers: a cli tool that manages your references",
   "main": "dist/yatta.js",
   "scripts": {
