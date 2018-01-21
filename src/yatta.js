@@ -58,7 +58,7 @@ async function set(key, value, options) {
     }
     if (key === 'dir') try {
         let made = fs.ensureDirSync(value);
-        if (made) spinner.success(`just created a new folder ${value}!`)
+        if (made) spinner.succeed(`just created a new folder ${value}!`)
     } catch (err) {
         spinner.fail(err);
         process.exit()
