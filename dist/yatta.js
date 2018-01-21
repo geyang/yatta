@@ -147,7 +147,7 @@ var search = function () {
     var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee6(query, options) {
         var show_list = function () {
             var _ref6 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4() {
-                var prompt, _ref7, selection;
+                var prompt, _ref7;
 
                 return _regenerator2.default.wrap(function _callee4$(_context4) {
                     while (1) {
@@ -182,7 +182,7 @@ var search = function () {
             };
         }();
 
-        var index, dir, search, sourceName, search_page, search_url, search_prompt, spinner, results, _ref5, choices, exit, tasks;
+        var index, dir, search, sourceName, search_page, search_url, search_prompt, spinner, results, _ref5, choices, exit, selection, tasks;
 
         return _regenerator2.default.wrap(function _callee6$(_context6) {
             while (1) {
@@ -257,17 +257,18 @@ var search = function () {
                     case 29:
                         spinner.stop();
                         choices = results.map(_utils.simple).slice(0, options.limit);
+                        selection = void 0;
 
-                    case 31:
+                    case 32:
                         if (!true) {
-                            _context6.next = 41;
+                            _context6.next = 42;
                             break;
                         }
 
-                        _context6.next = 34;
+                        _context6.next = 35;
                         return show_list();
 
-                    case 34:
+                    case 35:
                         spinner = ora("working").start();
                         tasks = selection.map(function () {
                             var _ref8 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(title, index) {
@@ -350,15 +351,15 @@ var search = function () {
                                 return _ref8.apply(this, arguments);
                             };
                         }());
-                        _context6.next = 38;
+                        _context6.next = 39;
                         return _promise2.default.all(tasks);
 
-                    case 38:
+                    case 39:
                         spinner.stop();
-                        _context6.next = 31;
+                        _context6.next = 32;
                         break;
 
-                    case 41:
+                    case 42:
                     case "end":
                         return _context6.stop();
                 }
