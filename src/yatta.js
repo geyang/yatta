@@ -126,55 +126,59 @@ async function search(query, options) {
         process.stdin.removeListener('keypress', exit);
     }
 
-    let prompt = inquirer.prompt({
-        ...search_prompt,
-        name: "selection",
-        choices
-    });
+    async function show_list() {
+        let prompt = inquirer.prompt({
+            ...search_prompt,
+            name: "selection",
+            choices
+        });
 
-    process.stdin.on('keypress', exit);
-    const {selection} = await prompt;
-    process.stdin.removeListener('keypress', exit);
+        process.stdin.on('keypress', exit);
+        const {selection} = await prompt;
+        process.stdin.removeListener('keypress', exit);
+    }
 
-    spinner = ora(`working`).start();
-    const tasks = selection.map(async function (title, index) {
-        const selected = results[choices.indexOf(title)];
-        if (!selected.pdfUrl) {
-            spinner.warn(chalk.yellow('href to PDF file does not exist with this entry.'));
-            spinner.info(selected);
-        }
-        const fn = pathJoin(dir, url2fn(selected.pdfUrl));
-        try {
-            if (fs.existsSync(fn)) {
-                spinner.warn(`the file ${fn} already exists! Skipping the download.`);
-            } else {
-                // todo: use unified single spinner for the entire parallel task stack.
-                spinner.info(`downloading ${selected.pdfUrl} to ${fn}`);
-                await curl(selected.pdfUrl, fn);
-                spinner.succeed("pdf file is saved");
+    while (true) {
+        await show_list();
+        spinner = ora(`working`).start();
+        const tasks = selection.map(async function (title, index) {
+            const selected = results[choices.indexOf(title)];
+            if (!selected.pdfUrl) {
+                spinner.warn(chalk.yellow('href to PDF file does not exist with this entry.'));
+                spinner.info(selected);
             }
-            if (options.open) {
-                spinner.info(chalk.green(`opening the pdf file ${fn}`));
-                // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
-                await sleep(200);
-                open(fn)
+            const fn = pathJoin(dir, url2fn(selected.pdfUrl));
+            try {
+                if (fs.existsSync(fn)) {
+                    spinner.warn(`the file ${fn} already exists! Skipping the download.`);
+                } else {
+                    // todo: use unified single spinner for the entire parallel task stack.
+                    spinner.info(`downloading ${selected.pdfUrl} to ${fn}`);
+                    await curl(selected.pdfUrl, fn);
+                    spinner.succeed("pdf file is saved");
+                }
+                if (options.open) {
+                    spinner.info(chalk.green(`opening the pdf file ${fn}`));
+                    // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
+                    await sleep(200);
+                    open(fn)
+                }
+            } catch (e) {
+                spinner.fail(`failed to save ${fn} due to`);
+                console.log(e);
             }
-        } catch (e) {
-            spinner.fail(`failed to save ${fn} due to`);
-            console.log(e);
-        }
-        try {
-            selected.files = [...(selected.files || []), fn];
-            update_index(options.indexPath, selected);
-            spinner.succeed("bib entry attached");
-        } catch (e) {
-            spinner.fail("failed to append bib entry due to");
-            console.log(e, selected);
-        }
-    });
-    await Promise.all(tasks);
-    spinner.stop();
-    process.exit()
+            try {
+                selected.files = [...(selected.files || []), fn];
+                update_index(options.indexPath, selected);
+                spinner.succeed("bib entry attached");
+            } catch (e) {
+                spinner.fail("failed to append bib entry due to");
+                console.log(e, selected);
+            }
+        });
+        await Promise.all(tasks);
+        spinner.stop();
+    }
 }
 
 program

@@ -82,7 +82,7 @@ export const DEFAULT_CONFIG = {
     search: {
         limit: ENTRY_LIMIT,
         open: true,
-        source: backends.ARXIV,
+        source: backends.ARXIV
     }
 };
 
