@@ -1,5 +1,5 @@
 'use strict';
-let isArray  = require("../utils").isArray;
+let isArray = require("../utils").isArray;
 
 let request = require('request');
 let cheerio = require('cheerio');
@@ -242,3 +242,5 @@ export function all(query) {
 export function search_page(query) {
     return `https://scholar.google.com/shcolar?q=${query.replace(' ', "+")}`;
 }
+
+const search_url = search_page;
