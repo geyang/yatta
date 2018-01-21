@@ -88,6 +88,7 @@ async function search(query, options) {
     // add options.backend
     const search = backends.SOURCES[options.source];
     const sourceName = backends.NAMES[options.source];
+    const search_page = backends.SEARCH_PAGES[options.source];
     if (!search && typeof search === "function")
         return console.error(chalk.red(`OPTION_ERROR: options.source is not in the white list ${backends.SOURCES}`));
 
@@ -99,6 +100,7 @@ async function search(query, options) {
         // todo: measure the actual height of the screen
     };
 
+    console.log(`this search could be found at\n${search_page(query)}`);
     let spinner = ora(`searching ${chalk.yellow(sourceName)} for ${chalk.green(query.join(' '))}`).start();
     let results;
     try {
