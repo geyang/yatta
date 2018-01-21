@@ -143,5 +143,5 @@ function search(query, limit, sortBy) {
 }
 
 function search_page(query) {
-    return "https://arxiv.org/find/all/1/" + query + "/0/1/0/all/0/1";
+    return "https://arxiv.org/find/all/1/" + coerceQuery(query) + "/0/1/0/all/0/1";
 }
