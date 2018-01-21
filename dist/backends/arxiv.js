@@ -59,10 +59,12 @@ function coerceQueryValue(key, value) {
 }
 
 function polish(op) {
-    return function (acc, b) {
-        return op.trim().toUpperCase() + "+" + b + "+" + acc;
+    return function (acc, b, index) {
+        return op.trim().toUpperCase() + "+" + (index === 1 ? acc + "+" + b : b + "+" + acc);
     };
 }
+
+// console.log('electrons on helium'.split(' ').reduce(polish('and')));
 
 function name_regularization() {
     for (var _len = arguments.length, names = Array(_len), _key = 0; _key < _len; _key++) {
