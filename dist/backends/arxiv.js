@@ -53,17 +53,20 @@ function coerceQueryValue(key, value) {
 }
 
 function coerceQuery(query) {
-    var queries = [];
-    if (typeof query === "string") query = { q: query };
-    var v = void 0;
-    for (var k in query) {
-        if (query.hasOwnProperty(k)) {
-            v = query[k];
-            k = coerceQueryKey(k);
-            v = coerceQueryValue(k, v);
-            queries.push([k, v].join(':'));
-        }
-    }return queries.join('+AND+');
+    if (typeof query === "string") {
+        return query;
+    } else {
+        var queries = [];
+        var v = void 0;
+        for (var k in query) {
+            if (query.hasOwnProperty(k)) {
+                v = query[k];
+                k = coerceQueryKey(k);
+                v = coerceQueryValue(k, v);
+                queries.push([k, v].join(':'));
+            }
+        }return queries.join('+AND+');
+    }
 }
 
 function unique(a, k) {
