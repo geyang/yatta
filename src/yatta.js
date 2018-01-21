@@ -51,8 +51,16 @@ async function set(key, value, options) {
         process.exit();
     }
     const {indexPath = INDEX_PATH, ...restOpts} = options;
+    let spinner = ora(`setting ${chalk.blue(indexPath)} file`).start();
     if (!fs.existsSync(indexPath)) {
-        console.error(`index file ${indexPath} does not exist. Use yatta init to initialize the file first!`);
+        spinner.fail(`index file ${indexPath} does not exist. Use yatta init to initialize the file first!`);
+        process.exit()
+    }
+    if (key === 'dir') try {
+        let made = fs.ensureDirSync(value);
+        if (made) spinner.success(`just created a new folder ${value}!`)
+    } catch (err) {
+        spinner.fail(err);
         process.exit()
     }
     let index = load_index(indexPath);
