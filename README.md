@@ -26,6 +26,6 @@ To search and download papers, do
 yatta search --source arxiv "Generative Adversarial Imitation Learning"
 ```
 and it gives the following result:
-![]()
+![./figures/help.png](./figures/help.png)
 
 
