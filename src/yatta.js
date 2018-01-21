@@ -127,6 +127,7 @@ async function search(query, options) {
         prompt.ui.close();
         console.log(chalk.green(`\nExit on <${key.name}> key~`));
         process.stdin.removeListener('keypress', exit);
+        process.exit();
     }
 
     async function show_list() {
