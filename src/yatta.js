@@ -10,7 +10,7 @@ import {ERR_BOT} from "./backends/google-scholar";
 import {join as pathJoin} from "path";
 
 const ora = require("ora");
-const fs = require("fs");
+const fs = require("fs-extra");
 const chalk = require('chalk');
 const program = require('commander');
 const package_config = require('../package.json');
