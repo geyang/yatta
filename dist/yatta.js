@@ -111,7 +111,7 @@ var set = function () {
 
 var search = function () {
     var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(query, options) {
-        var index, search, sourceName, search_prompt, spinner, results, _ref4, choices, exit, prompt, _ref5, selection, i, selected, fn;
+        var index, dir, search, sourceName, search_prompt, spinner, results, _ref4, choices, exit, prompt, _ref5, selection, selected, fn;
 
         return _regenerator2.default.wrap(function _callee3$(_context3) {
             while (1) {
@@ -125,29 +125,30 @@ var search = function () {
                         };
 
                         index = (0, _utils.load_index)(options.indexPath);
+                        dir = index.dir || _utils.DEFAULT_CONFIG.dir;
 
                         options = (0, _extends3.default)({}, _utils.DEFAULT_CONFIG.search, index.search || {}, options);
 
                         if (options.limit) {
-                            _context3.next = 5;
+                            _context3.next = 6;
                             break;
                         }
 
                         return _context3.abrupt("return", console.error(chalk.red('OPTION_ERROR: options.limit is not specified or 0')));
 
-                    case 5:
+                    case 6:
                         // add options.backend
                         search = backends.SOURCES[options.source];
                         sourceName = backends.NAMES[options.source];
 
                         if (!(!search && typeof search === "function")) {
-                            _context3.next = 9;
+                            _context3.next = 10;
                             break;
                         }
 
                         return _context3.abrupt("return", console.error(chalk.red("OPTION_ERROR: options.source is not in the white list " + backends.SOURCES)));
 
-                    case 9:
+                    case 10:
                         search_prompt = {
                             message: "Results by " + sourceName,
                             type: "list",
@@ -157,25 +158,25 @@ var search = function () {
                         };
                         spinner = ora("searching " + chalk.yellow(sourceName) + " for " + chalk.green(query)).start();
                         results = void 0;
-                        _context3.prev = 12;
-                        _context3.next = 15;
+                        _context3.prev = 13;
+                        _context3.next = 16;
                         return search(query, options.limit);
 
-                    case 15:
+                    case 16:
                         _ref4 = _context3.sent;
                         results = _ref4.results;
-                        _context3.next = 24;
+                        _context3.next = 25;
                         break;
 
-                    case 19:
-                        _context3.prev = 19;
-                        _context3.t0 = _context3["catch"](12);
+                    case 20:
+                        _context3.prev = 20;
+                        _context3.t0 = _context3["catch"](13);
 
                         spinner.stop();
                         if (_context3.t0.code === _googleScholar.ERR_BOT) console.error(chalk.green("\nYou are detected as a bot\n"), _context3.t0);else console.error(chalk.red('\nsomething went wrong during search\n'), _context3.t0);
                         process.exit();
 
-                    case 24:
+                    case 25:
                         spinner.stop();
                         choices = results.map(_utils.simple).slice(0, options.limit);
                         prompt = inquirer.prompt((0, _extends3.default)({}, search_prompt, {
@@ -185,18 +186,23 @@ var search = function () {
 
 
                         process.stdin.on('keypress', exit);
-                        _context3.next = 30;
+                        _context3.next = 31;
                         return prompt;
 
-                    case 30:
+                    case 31:
                         _ref5 = _context3.sent;
                         selection = _ref5.selection;
 
                         process.stdin.removeListener('keypress', exit);
-                        i = choices.indexOf(selection);
-                        selected = results[i];
-                        fn = (0, _utils.url2fn)(selected.pdfUrl);
-                        _context3.prev = 36;
+                        selected = results[choices.indexOf(selection)];
+
+                        if (!selected.pdfUrl) {
+                            console.log(chalk.red("!"), chalk.yellow('href to PDF file does not exist with this entry.'), "please see details below:");
+                            console.log(selected);
+                            process.exit();
+                        }
+                        fn = (0, _path.join)(dir, (0, _utils.url2fn)(selected.pdfUrl));
+                        _context3.prev = 37;
 
                         if (fs.existsSync(fn)) {
                             console.log(chalk.yellow("!"), "pdf file already exist! Skipping the download.");
@@ -206,43 +212,43 @@ var search = function () {
                         }
 
                         if (!options.open) {
-                            _context3.next = 43;
+                            _context3.next = 44;
                             break;
                         }
 
-                        console.log(chalk.info("opening the pdf file."), "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
-                        _context3.next = 42;
+                        console.log(chalk.green("opening the pdf file."), "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
+                        _context3.next = 43;
                         return (0, _utils2.sleep)(200);
 
-                    case 42:
+                    case 43:
                         open(fn);
 
-                    case 43:
-                        _context3.next = 48;
+                    case 44:
+                        _context3.next = 49;
                         break;
 
-                    case 45:
-                        _context3.prev = 45;
-                        _context3.t1 = _context3["catch"](36);
+                    case 46:
+                        _context3.prev = 46;
+                        _context3.t1 = _context3["catch"](37);
 
                         console.log(chalk.red("✘"), "pdf file saving failed due to", _context3.t1);
 
-                    case 48:
+                    case 49:
                         try {
                             selected.files = [].concat((0, _toConsumableArray3.default)(selected.files || []), [fn]);
                             (0, _utils.update_index)(options.indexPath, selected);
                             console.log(chalk.green("✓"), "bib entry attached");
                         } catch (e) {
-                            console.log(chalk.red("✘"), "failed to append bib entry due to", e);
+                            console.error(chalk.red("✘"), "failed to append bib entry due to", e, selected);
                         }
                         process.exit();
 
-                    case 50:
+                    case 51:
                     case "end":
                         return _context3.stop();
                 }
             }
-        }, _callee3, this, [[12, 19], [36, 45]]);
+        }, _callee3, this, [[13, 20], [37, 46]]);
     }));
 
     return function search(_x5, _x6) {
@@ -259,6 +265,8 @@ var _backends = require("./backends");
 var backends = _interopRequireWildcard(_backends);
 
 var _googleScholar = require("./backends/google-scholar");
+
+var _path = require("path");
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 

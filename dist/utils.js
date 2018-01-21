@@ -154,7 +154,6 @@ var INDEX_PATH = exports.INDEX_PATH = "yatta.yml";
 var ENTRY_LIMIT = exports.ENTRY_LIMIT = 15;
 var DEFAULT_DIR = exports.DEFAULT_DIR = "./";
 var DEFAULT_CONFIG_INIT = exports.DEFAULT_CONFIG_INIT = {
-    dir: DEFAULT_DIR,
     search: {}
 };
 var DEFAULT_CONFIG = exports.DEFAULT_CONFIG = {

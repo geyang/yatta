@@ -7,6 +7,7 @@ import {
 import {sleep} from "../dist/utils";
 import * as backends from "./backends";
 import {ERR_BOT} from "./backends/google-scholar";
+import {join as pathJoin} from "path";
 
 const ora = require("ora");
 const fs = require("fs");
@@ -69,6 +70,7 @@ async function set(key, value, options) {
 
 async function search(query, options) {
     const index = load_index(options.indexPath);
+    const dir = index.dir || DEFAULT_CONFIG.dir;
     options = {...DEFAULT_CONFIG.search, ...(index.search || {}), ...options};
     if (!options.limit)
         return console.error(chalk.red('OPTION_ERROR: options.limit is not specified or 0'));
@@ -117,10 +119,13 @@ async function search(query, options) {
     process.stdin.on('keypress', exit);
     const {selection} = await prompt;
     process.stdin.removeListener('keypress', exit);
-    let i = choices.indexOf(selection);
-    const selected = results[i];
-
-    const fn = url2fn(selected.pdfUrl);
+    const selected = results[choices.indexOf(selection)];
+    if (!selected.pdfUrl) {
+        console.log(chalk.red("!"), chalk.yellow('href to PDF file does not exist with this entry.'), "please see details below:");
+        console.log(selected);
+        process.exit()
+    }
+    const fn = pathJoin(dir, url2fn(selected.pdfUrl));
     try {
         if (fs.existsSync(fn)) {
             console.log(chalk.yellow("!"), "pdf file already exist! Skipping the download.");
@@ -129,7 +134,7 @@ async function search(query, options) {
             console.log(chalk.green("✓"), "pdf file is saved");
         }
         if (options.open) {
-            console.log(chalk.info("opening the pdf file."),
+            console.log(chalk.green("opening the pdf file."),
                 "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
             await sleep(200);
             open(fn)
@@ -142,7 +147,7 @@ async function search(query, options) {
         update_index(options.indexPath, selected);
         console.log(chalk.green("✓"), "bib entry attached");
     } catch (e) {
-        console.log(chalk.red("✘"), "failed to append bib entry due to", e);
+        console.error(chalk.red("✘"), "failed to append bib entry due to", e, selected);
     }
     process.exit();
 }

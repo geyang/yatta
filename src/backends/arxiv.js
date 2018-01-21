@@ -62,6 +62,12 @@ function unique(a, k) {
 
 function coerceEntry(entry) {
     const published = new Date(entry.published[0]);
+    const links = entry.link.map(function (link) {
+        return {
+            href: link['$']['href'] || "",
+            title: link['$']['title'] || ""
+        };
+    });
     return {
         id: entry.id[0],
         updated: new Date(entry.updated[0]),
@@ -69,12 +75,10 @@ function coerceEntry(entry) {
         year: published.getFullYear(),
         title: entry.title[0].trim().replace(/\s+/g, ' '),
         summary: entry.summary[0].trim().replace(/\s+/g, ' '),
-        links: entry.link.map(function (link) {
-            return {
-                href: link['$']['href'],
-                title: link['$']['title']
-            };
-        }),
+        //todo: allow multiple links, do the same for Google Scholar. Reference standard bib from Mendeley.
+        links,
+        url: links.filter(({title}) => !title)[0].href,
+        pdfUrl: links.filter(({title}) => title === "pdf").slice(-1)[0].href, //pick the last one.
         authors: unique(entry.author.map(function (author) {
             return {
                 name: author['name'][0]

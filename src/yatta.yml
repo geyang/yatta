@@ -1,4 +1,55 @@
-dir: ./
-papers: []
+dir: ./daan_wierstra
+papers:
+  - authors:
+      - name: M. Botvinick
+      - name: D. G. T. Barrett
+      - name: P. Battaglia
+      - name: N. de Freitas
+      - name: D. Kumaran
+      - name: J. Z Leibo
+      - name: T. Lillicrap
+      - name: J. Modayil
+      - name: S. Mohamed
+      - name: N. C. Rabinowitz
+      - name: D. J. Rezende
+      - name: A. Santoro
+      - name: T. Schaul
+      - name: C. Summerfield
+      - name: G. Wayne
+      - name: T. Weber
+      - name: D. Wierstra
+      - name: S. Legg
+      - name: D. Hassabis
+    categories:
+      - cs.AI
+    files:
+      - daan_wierstra/1711.08378v1.pdf
+    id: 'http://arxiv.org/abs/1711.08378v1'
+    links:
+      - href: 'http://arxiv.org/abs/1711.08378v1'
+        title: ''
+      - href: 'http://arxiv.org/pdf/1711.08378v1'
+        title: pdf
+    pdfUrl: 'http://arxiv.org/pdf/1711.08378v1'
+    published: 2017-11-22T16:35:29.000Z
+    summary: >-
+      We agree with Lake and colleagues on their list of key ingredients for
+      building humanlike intelligence, including the idea that model-based
+      reasoning is essential. However, we favor an approach that centers on one
+      additional ingredient: autonomy. In particular, we aim toward agents that
+      can both build and exploit their own internal models, with minimal human
+      hand-engineering. We believe an approach centered on autonomous learning
+      has the greatest chance of success as we scale toward real-world
+      complexity, tackling domains for which ready-made formal models are not
+      available. Here we survey several important examples of the progress that
+      has been made toward building autonomous agents with humanlike abilities,
+      and highlight some outstanding challenges.
+    title: >-
+      Building Machines that Learn and Think for Themselves: Commentary on Lake
+      et al., Behavioral and Brain Sciences, 2017
+    updated: 2017-11-22T16:35:29.000Z
+    url: 'http://arxiv.org/abs/1711.08378v1'
+    year: 2017
 search:
   open: true
+  source: arxiv
