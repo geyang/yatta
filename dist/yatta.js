@@ -192,6 +192,7 @@ var search = function () {
                             prompt.ui.close();
                             console.log(chalk.green("\nExit on <" + key.name + "> key~"));
                             process.stdin.removeListener('keypress', exit);
+                            process.exit();
                         };
 
                         index = (0, _utils.load_index)(options.indexPath);
