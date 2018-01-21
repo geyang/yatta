@@ -63,8 +63,9 @@ const USER_AGENT = 'curl/7.52.1';
 
 export function curl(url, targetPath) {
     const file = fs.createWriteStream(targetPath);
-    url = url.replace(/^https/, "http");
-    request({url, headers: {'User-Agent': USER_AGENT}}).pipe(file);
+    // url = url.replace(/^https/, "http");
+    return new Promise((resolve, reject) => request({url, headers: {'User-Agent': USER_AGENT}})
+        .pipe(file).on('error', reject).on('finish', resolve));
 }
 
 // curl("https://arxiv.org/pdf/1703.01988.pdf", "test.pdf");

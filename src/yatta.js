@@ -82,10 +82,10 @@ async function search(query, options) {
 
     const search_prompt = {
         message: `Results by ${sourceName}`,
-        type: "list",
+        type: "checkbox",
         default: 0,
         pageSize: options.limit * 2 // when this is less than the real screen estate, it gets very ugly.
-        // todo: measure the actual height of the screen.
+        // todo: measure the actual height of the screen
     };
 
     let spinner = ora(`searching ${chalk.yellow(sourceName)} for ${chalk.green(query)}`).start();
@@ -119,37 +119,46 @@ async function search(query, options) {
     process.stdin.on('keypress', exit);
     const {selection} = await prompt;
     process.stdin.removeListener('keypress', exit);
-    const selected = results[choices.indexOf(selection)];
-    if (!selected.pdfUrl) {
-        console.log(chalk.red("!"), chalk.yellow('href to PDF file does not exist with this entry.'), "please see details below:");
-        console.log(selected);
-        process.exit()
-    }
-    const fn = pathJoin(dir, url2fn(selected.pdfUrl));
-    try {
-        if (fs.existsSync(fn)) {
-            console.log(chalk.yellow("!"), "pdf file already exist! Skipping the download.");
-        } else {
-            curl(selected.pdfUrl, fn);
-            console.log(chalk.green("✓"), "pdf file is saved");
+
+    spinner = ora(`working`).start();
+    const tasks = selection.map(async function (title, index) {
+        const selected = results[choices.indexOf(title)];
+        if (!selected.pdfUrl) {
+            spinner.warn(chalk.yellow('href to PDF file does not exist with this entry.'));
+            spinner.info(selected);
         }
-        if (options.open) {
-            console.log(chalk.green("opening the pdf file."),
-                "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
-            await sleep(200);
-            open(fn)
+        const fn = pathJoin(dir, url2fn(selected.pdfUrl));
+        try {
+            if (fs.existsSync(fn)) {
+                spinner.warn(`the file ${fn} already exists! Skipping the download.`);
+            } else {
+                // todo: use unified single spinner for the entire parallel task stack.
+                spinner.info(`downloading ${selected.pdfUrl} to ${fn}`);
+                await curl(selected.pdfUrl, fn);
+                spinner.succeed("pdf file is saved");
+            }
+            if (options.open) {
+                spinner.info(chalk.green(`opening the pdf file ${fn}`));
+                // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
+                await sleep(200);
+                open(fn)
+            }
+        } catch (e) {
+            spinner.fail(`failed to save ${fn} due to`);
+            console.log(e);
         }
-    } catch (e) {
-        console.log(chalk.red("✘"), "pdf file saving failed due to", e);
-    }
-    try {
-        selected.files = [...(selected.files || []), fn];
-        update_index(options.indexPath, selected);
-        console.log(chalk.green("✓"), "bib entry attached");
-    } catch (e) {
-        console.error(chalk.red("✘"), "failed to append bib entry due to", e, selected);
-    }
-    process.exit();
+        try {
+            selected.files = [...(selected.files || []), fn];
+            update_index(options.indexPath, selected);
+            spinner.succeed("bib entry attached");
+        } catch (e) {
+            spinner.fail("failed to append bib entry due to");
+            console.log(e, selected);
+        }
+    });
+    await Promise.all(tasks);
+    spinner.stop();
+    process.exit()
 }
 
 program

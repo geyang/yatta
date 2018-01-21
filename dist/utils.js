@@ -142,8 +142,10 @@ var USER_AGENT = 'curl/7.52.1';
 
 function curl(url, targetPath) {
     var file = _fsExtra2.default.createWriteStream(targetPath);
-    url = url.replace(/^https/, "http");
-    (0, _request2.default)({ url: url, headers: { 'User-Agent': USER_AGENT } }).pipe(file);
+    // url = url.replace(/^https/, "http");
+    return new _promise2.default(function (resolve, reject) {
+        return (0, _request2.default)({ url: url, headers: { 'User-Agent': USER_AGENT } }).pipe(file).on('error', reject).on('finish', resolve);
+    });
 }
 
 // curl("https://arxiv.org/pdf/1703.01988.pdf", "test.pdf");

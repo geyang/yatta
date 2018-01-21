@@ -5,6 +5,10 @@ var _keys = require("babel-runtime/core-js/object/keys");
 
 var _keys2 = _interopRequireDefault(_keys);
 
+var _promise = require("babel-runtime/core-js/promise");
+
+var _promise2 = _interopRequireDefault(_promise);
+
 var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
 
 var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
@@ -110,12 +114,12 @@ var set = function () {
 }();
 
 var search = function () {
-    var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(query, options) {
-        var index, dir, search, sourceName, search_prompt, spinner, results, _ref4, choices, exit, prompt, _ref5, selection, selected, fn;
+    var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(query, options) {
+        var index, dir, search, sourceName, search_prompt, spinner, results, _ref4, choices, exit, prompt, _ref5, selection, tasks;
 
-        return _regenerator2.default.wrap(function _callee3$(_context3) {
+        return _regenerator2.default.wrap(function _callee4$(_context4) {
             while (1) {
-                switch (_context3.prev = _context3.next) {
+                switch (_context4.prev = _context4.next) {
                     case 0:
                         exit = function exit(ch, key) {
                             if (key && EXIT_KEYS.indexOf(key.name) === -1) return;
@@ -130,11 +134,11 @@ var search = function () {
                         options = (0, _extends3.default)({}, _utils.DEFAULT_CONFIG.search, index.search || {}, options);
 
                         if (options.limit) {
-                            _context3.next = 6;
+                            _context4.next = 6;
                             break;
                         }
 
-                        return _context3.abrupt("return", console.error(chalk.red('OPTION_ERROR: options.limit is not specified or 0')));
+                        return _context4.abrupt("return", console.error(chalk.red('OPTION_ERROR: options.limit is not specified or 0')));
 
                     case 6:
                         // add options.backend
@@ -142,38 +146,38 @@ var search = function () {
                         sourceName = backends.NAMES[options.source];
 
                         if (!(!search && typeof search === "function")) {
-                            _context3.next = 10;
+                            _context4.next = 10;
                             break;
                         }
 
-                        return _context3.abrupt("return", console.error(chalk.red("OPTION_ERROR: options.source is not in the white list " + backends.SOURCES)));
+                        return _context4.abrupt("return", console.error(chalk.red("OPTION_ERROR: options.source is not in the white list " + backends.SOURCES)));
 
                     case 10:
                         search_prompt = {
                             message: "Results by " + sourceName,
-                            type: "list",
+                            type: "checkbox",
                             default: 0,
                             pageSize: options.limit * 2 // when this is less than the real screen estate, it gets very ugly.
-                            // todo: measure the actual height of the screen.
+                            // todo: measure the actual height of the screen
                         };
                         spinner = ora("searching " + chalk.yellow(sourceName) + " for " + chalk.green(query)).start();
                         results = void 0;
-                        _context3.prev = 13;
-                        _context3.next = 16;
+                        _context4.prev = 13;
+                        _context4.next = 16;
                         return search(query, options.limit);
 
                     case 16:
-                        _ref4 = _context3.sent;
+                        _ref4 = _context4.sent;
                         results = _ref4.results;
-                        _context3.next = 25;
+                        _context4.next = 25;
                         break;
 
                     case 20:
-                        _context3.prev = 20;
-                        _context3.t0 = _context3["catch"](13);
+                        _context4.prev = 20;
+                        _context4.t0 = _context4["catch"](13);
 
                         spinner.stop();
-                        if (_context3.t0.code === _googleScholar.ERR_BOT) console.error(chalk.green("\nYou are detected as a bot\n"), _context3.t0);else console.error(chalk.red('\nsomething went wrong during search\n'), _context3.t0);
+                        if (_context4.t0.code === _googleScholar.ERR_BOT) console.error(chalk.green("\nYou are detected as a bot\n"), _context4.t0);else console.error(chalk.red('\nsomething went wrong during search\n'), _context4.t0);
                         process.exit();
 
                     case 25:
@@ -186,69 +190,110 @@ var search = function () {
 
 
                         process.stdin.on('keypress', exit);
-                        _context3.next = 31;
+                        _context4.next = 31;
                         return prompt;
 
                     case 31:
-                        _ref5 = _context3.sent;
+                        _ref5 = _context4.sent;
                         selection = _ref5.selection;
 
                         process.stdin.removeListener('keypress', exit);
-                        selected = results[choices.indexOf(selection)];
 
-                        if (!selected.pdfUrl) {
-                            console.log(chalk.red("!"), chalk.yellow('href to PDF file does not exist with this entry.'), "please see details below:");
-                            console.log(selected);
-                            process.exit();
-                        }
-                        fn = (0, _path.join)(dir, (0, _utils.url2fn)(selected.pdfUrl));
-                        _context3.prev = 37;
+                        spinner = ora("working").start();
+                        tasks = selection.map(function () {
+                            var _ref6 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(title, index) {
+                                var selected, fn;
+                                return _regenerator2.default.wrap(function _callee3$(_context3) {
+                                    while (1) {
+                                        switch (_context3.prev = _context3.next) {
+                                            case 0:
+                                                selected = results[choices.indexOf(title)];
 
-                        if (fs.existsSync(fn)) {
-                            console.log(chalk.yellow("!"), "pdf file already exist! Skipping the download.");
-                        } else {
-                            (0, _utils.curl)(selected.pdfUrl, fn);
-                            console.log(chalk.green("✓"), "pdf file is saved");
-                        }
+                                                if (!selected.pdfUrl) {
+                                                    spinner.warn(chalk.yellow('href to PDF file does not exist with this entry.'));
+                                                    spinner.info(selected);
+                                                }
+                                                fn = (0, _path.join)(dir, (0, _utils.url2fn)(selected.pdfUrl));
+                                                _context3.prev = 3;
 
-                        if (!options.open) {
-                            _context3.next = 44;
-                            break;
-                        }
+                                                if (!fs.existsSync(fn)) {
+                                                    _context3.next = 8;
+                                                    break;
+                                                }
 
-                        console.log(chalk.green("opening the pdf file."), "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
-                        _context3.next = 43;
-                        return (0, _utils2.sleep)(200);
+                                                spinner.warn("the file " + fn + " already exists! Skipping the download.");
+                                                _context3.next = 12;
+                                                break;
 
-                    case 43:
-                        open(fn);
+                                            case 8:
+                                                // todo: use unified single spinner for the entire parallel task stack.
+                                                spinner.info("downloading " + selected.pdfUrl + " to " + fn);
+                                                _context3.next = 11;
+                                                return (0, _utils.curl)(selected.pdfUrl, fn);
 
-                    case 44:
-                        _context3.next = 49;
-                        break;
+                                            case 11:
+                                                spinner.succeed("pdf file is saved");
 
-                    case 46:
-                        _context3.prev = 46;
-                        _context3.t1 = _context3["catch"](37);
+                                            case 12:
+                                                if (!options.open) {
+                                                    _context3.next = 17;
+                                                    break;
+                                                }
 
-                        console.log(chalk.red("✘"), "pdf file saving failed due to", _context3.t1);
+                                                spinner.info(chalk.green("opening the pdf file " + fn));
+                                                // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
+                                                _context3.next = 16;
+                                                return (0, _utils2.sleep)(200);
 
-                    case 49:
-                        try {
-                            selected.files = [].concat((0, _toConsumableArray3.default)(selected.files || []), [fn]);
-                            (0, _utils.update_index)(options.indexPath, selected);
-                            console.log(chalk.green("✓"), "bib entry attached");
-                        } catch (e) {
-                            console.error(chalk.red("✘"), "failed to append bib entry due to", e, selected);
-                        }
+                                            case 16:
+                                                open(fn);
+
+                                            case 17:
+                                                _context3.next = 23;
+                                                break;
+
+                                            case 19:
+                                                _context3.prev = 19;
+                                                _context3.t0 = _context3["catch"](3);
+
+                                                spinner.fail("failed to save " + fn + " due to");
+                                                console.log(_context3.t0);
+
+                                            case 23:
+                                                try {
+                                                    selected.files = [].concat((0, _toConsumableArray3.default)(selected.files || []), [fn]);
+                                                    (0, _utils.update_index)(options.indexPath, selected);
+                                                    spinner.succeed("bib entry attached");
+                                                } catch (e) {
+                                                    spinner.fail("failed to append bib entry due to");
+                                                    console.log(e, selected);
+                                                }
+
+                                            case 24:
+                                            case "end":
+                                                return _context3.stop();
+                                        }
+                                    }
+                                }, _callee3, this, [[3, 19]]);
+                            }));
+
+                            return function (_x7, _x8) {
+                                return _ref6.apply(this, arguments);
+                            };
+                        }());
+                        _context4.next = 38;
+                        return _promise2.default.all(tasks);
+
+                    case 38:
+                        spinner.stop();
                         process.exit();
 
-                    case 51:
+                    case 40:
                     case "end":
-                        return _context3.stop();
+                        return _context4.stop();
                 }
             }
-        }, _callee3, this, [[13, 20], [37, 46]]);
+        }, _callee4, this, [[13, 20]]);
     }));
 
     return function search(_x5, _x6) {
