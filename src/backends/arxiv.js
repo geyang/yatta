@@ -61,10 +61,10 @@ function coerceQuery(query) {
                 last = {key: "all:"};
                 queryContext.push(last);
             }
-            last.value = s.split(' ').reduceRight(polish('and'))
+            last.value = s.split(' ').reduce(polish('and'))
         }
     }
-    return queryContext.map(c => `${c.key}+${c.value}`).reduceRight(polish('and'))
+    return queryContext.map(c => `${c.key}+${c.value}`).reduce(polish('and'))
 }
 
 // const r = coerceQuery(["au:some", "first", "lastname", "ti:like", "this", "and", "that", 'cat:stat.ml']);
