@@ -1,6 +1,6 @@
 # yatta
 
-[Share Me on HackerNews! =>[Yatta | NPM-for-science-papers]](https://news.ycombinator.com/submitlink?u=https://github.com/episodeyang/yatta&t=Yatta%20|%20NPM-for-science-papers)
+[:rocket::beer:Share Me on HackerNews!:fire::star:](https://news.ycombinator.com/submitlink?u=https://github.com/episodeyang/yatta&t=Yatta%20|%20NPM-for-science-papers)
 
 yatta is a cli tool that manages your paper PDFs. It is `npm` for papers. 
 
