@@ -26,6 +26,16 @@ To search and download papers, do
 yatta search --source arxiv "Generative Adversarial Imitation Learning"
 ```
 and it gives the following result:
+[placeholder image]
+
+### We support the FULL arxiv search query syntax!
+
+for example for the following query, you get:
+```bash
+yatta search au:bellemare ti:compress and controll
+```
+
+
 ![./figures/help.png](./figures/help.png)
 
 

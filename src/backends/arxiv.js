@@ -38,7 +38,7 @@ function coerceQueryValue(key, value) {
 function coerceQuery(query) {
     return query.join('+')
         .replace(/(^|\+)(au|ti|all|cat:)/g, "AND+$2")
-        .replace(/:[^+]/g, ":+")
+        .replace(/:([^+])/g, ":+$1")
 }
 
 // const r = coerceQuery(["au:some", "text", "ti:like", "this"]);
