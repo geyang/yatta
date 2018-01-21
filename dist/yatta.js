@@ -398,7 +398,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var ora = require("ora");
-var fs = require("fs");
+var fs = require("fs-extra");
 var chalk = require('chalk');
 var program = require('commander');
 var package_config = require('../package.json');
