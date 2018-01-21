@@ -126,6 +126,8 @@ async function search(query, options) {
         process.stdin.removeListener('keypress', exit);
     }
 
+    let selection;
+
     async function show_list() {
         let prompt = inquirer.prompt({
             ...search_prompt,
@@ -134,7 +136,7 @@ async function search(query, options) {
         });
 
         process.stdin.on('keypress', exit);
-        const {selection} = await prompt;
+        ({selection} = await prompt);
         process.stdin.removeListener('keypress', exit);
     }
 
