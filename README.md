@@ -10,6 +10,8 @@ yatta is a cli tool that manages your paper PDFs. It is `npm` for papers.
 
 We solve some of the annoying problems, so that you don't have to. Plus `yatta` is open source, so you can help shape the direction it goes!
 
+[![yatta-demo.v0.11.2](./figures/demo.v0.11.2.png)](https://asciinema.org/a/158365)
+
 ## Usage
 
 First run `npm install -g yatta`. If you don't have node on your computer, first install it from [here](https://nodejs.org/en/download/). Alternatively you can use `brew install node` on a mac.
