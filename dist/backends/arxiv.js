@@ -59,8 +59,8 @@ function coerceQueryValue(key, value) {
 }
 
 function polish(op) {
-    return function (a, b) {
-        return op.trim().toUpperCase() + "+" + a + "+" + b;
+    return function (acc, b) {
+        return op.trim().toUpperCase() + "+" + b + "+" + acc;
     };
 }
 
@@ -108,7 +108,7 @@ function coerceQuery(query) {
                     last = { key: "all:" };
                     queryContext.push(last);
                 }
-                last.value = s.split(' ').reduce(polish('and'));
+                last.value = s.split(' ').reduceRight(polish('and'));
             }
         }
     } catch (err) {
@@ -128,10 +128,10 @@ function coerceQuery(query) {
 
     return queryContext.map(function (c) {
         return c.key + "+" + c.value;
-    }).reduce(polish('and'));
+    }).reduceRight(polish('and'));
 }
 
-// const r = coerceQuery(["au:some", "first", "lastname", "ti:like", "this", "and", "that"]);
+// const r = coerceQuery(["au:some", "first", "lastname", "ti:like", "this", "and", "that", 'cat:stat.ml']);
 // console.log(r);
 
 function unique(a, k) {
