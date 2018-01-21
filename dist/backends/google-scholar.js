@@ -47,50 +47,52 @@ var search = exports.search = function () {
             while (1) {
                 switch (_context.prev = _context.next) {
                     case 0:
+                        if (isArray(query)) query = query.join(' ');
+
                         if (!(typeof query !== 'string')) {
-                            _context.next = 2;
+                            _context.next = 3;
                             break;
                         }
 
                         throw new Error("only string query is allowed");
 
-                    case 2:
+                    case 3:
                         results = [];
-                        _context.next = 5;
+                        _context.next = 6;
                         return _search(query);
 
-                    case 5:
+                    case 6:
                         r = _context.sent;
 
                         results.push.apply(results, (0, _toConsumableArray3.default)(r.results));
 
-                    case 7:
+                    case 8:
                         if (!(results.length < limit && r.results.length > 0 && !!r.nextUrl)) {
-                            _context.next = 16;
+                            _context.next = 17;
                             break;
                         }
 
-                        _context.next = 10;
+                        _context.next = 11;
                         return sleep(2000);
 
-                    case 10:
-                        _context.next = 12;
+                    case 11:
+                        _context.next = 13;
                         return r.next();
 
-                    case 12:
+                    case 13:
                         r = _context.sent;
 
                         results.push.apply(results, (0, _toConsumableArray3.default)(r.results));
-                        _context.next = 7;
+                        _context.next = 8;
                         break;
 
-                    case 16:
+                    case 17:
                         return _context.abrupt('return', (0, _extends3.default)({}, r, {
                             count: results.length,
                             results: results
                         }));
 
-                    case 17:
+                    case 18:
                     case 'end':
                         return _context.stop();
                 }
@@ -104,8 +106,11 @@ var search = exports.search = function () {
 }();
 
 exports.all = all;
+exports.search_page = search_page;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var isArray = require("../utils").isArray;
 
 var request = require('request');
 var cheerio = require('cheerio');
@@ -317,4 +322,8 @@ function sleep(ms) {
             });
         }
     });
+}
+
+function search_page(query) {
+    return 'https://scholar.google.com/shcolar?q=' + query.replace(' ', "+");
 }

@@ -37,6 +37,7 @@ var _templateObject = (0, _taggedTemplateLiteral3.default)(["Failed to read inde
 
 
 exports.sleep = sleep;
+exports.isArray = isArray;
 exports.dot = dot;
 exports.dot_update = dot_update;
 exports.$aus = $aus;

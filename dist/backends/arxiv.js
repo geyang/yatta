@@ -9,6 +9,7 @@ var _promise = require("babel-runtime/core-js/promise");
 var _promise2 = _interopRequireDefault(_promise);
 
 exports.search = search;
+exports.search_page = search_page;
 
 var _request = require("request");
 
@@ -18,15 +19,17 @@ var _xml2js = require("xml2js");
 
 var _xml2js2 = _interopRequireDefault(_xml2js);
 
+var _utils = require("../utils");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/** Created by ge on 1/20/18. */
 function makeUrl(query) {
     var max_results = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 100;
     var sort_by = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "submittedDate";
 
     return "http://export.arxiv.org/api/query?sortBy=" + sort_by + "&max_results=" + max_results + "&search_query=" + query;
-}
+} /** Created by ge on 1/20/18. */
+
 
 var key_map = {
     author: 'au',
@@ -52,22 +55,16 @@ function coerceQueryValue(key, value) {
     }
 }
 
+/**
+ * query: a list of strings, of the form ["au:some", "text" "ti:like" "this"]
+ * returns AND+au:+some+text+AND+ti:+like+this
+ * */
 function coerceQuery(query) {
-    if (typeof query === "string") {
-        return query;
-    } else {
-        var queries = [];
-        var v = void 0;
-        for (var k in query) {
-            if (query.hasOwnProperty(k)) {
-                v = query[k];
-                k = coerceQueryKey(k);
-                v = coerceQueryValue(k, v);
-                queries.push([k, v].join(':'));
-            }
-        }return queries.join('+AND+');
-    }
+    return query.join('+').replace(/(^|\+)(au|ti|all|cat:)/g, "AND+$2").replace(/:[^+]/g, ":+");
 }
+
+// const r = coerceQuery(["au:some", "text", "ti:like", "this"]);
+// console.log(r);
 
 function unique(a, k) {
     var a_ = void 0,
@@ -143,4 +140,8 @@ function search(query, limit, sortBy) {
             });
         });
     });
+}
+
+function search_page(query) {
+    return "https://arxiv.org/find/all/1/" + query + "/0/1/0/all/0/1";
 }

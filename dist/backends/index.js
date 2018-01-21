@@ -3,13 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.NAMES = exports.SOURCES = exports.GOOGLE_SCHOLAR = exports.ARXIV = undefined;
+exports.SEARCH_PAGES = exports.NAMES = exports.SOURCES = exports.GOOGLE_SCHOLAR = exports.ARXIV = undefined;
 
 var _defineProperty2 = require("babel-runtime/helpers/defineProperty");
 
 var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-var _SOURCES, _NAMES; /** Created by ge on 1/20/18. */
+var _SOURCES, _NAMES, _SEARCH_PAGES; /** Created by ge on 1/20/18. */
 
 
 var _arxiv = require("./arxiv");
@@ -28,3 +28,4 @@ var ARXIV = exports.ARXIV = "arxiv";
 var GOOGLE_SCHOLAR = exports.GOOGLE_SCHOLAR = "google-scholar";
 var SOURCES = exports.SOURCES = (_SOURCES = {}, (0, _defineProperty3.default)(_SOURCES, GOOGLE_SCHOLAR, googleScholar.search), (0, _defineProperty3.default)(_SOURCES, ARXIV, arxiv.search), _SOURCES);
 var NAMES = exports.NAMES = (_NAMES = {}, (0, _defineProperty3.default)(_NAMES, GOOGLE_SCHOLAR, "Google Scholar"), (0, _defineProperty3.default)(_NAMES, ARXIV, "Arxiv.org"), _NAMES);
+var SEARCH_PAGES = exports.SEARCH_PAGES = (_SEARCH_PAGES = {}, (0, _defineProperty3.default)(_SEARCH_PAGES, GOOGLE_SCHOLAR, googleScholar.search_page), (0, _defineProperty3.default)(_SEARCH_PAGES, ARXIV, arxiv.search_page), _SEARCH_PAGES);

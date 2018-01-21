@@ -113,13 +113,43 @@ var set = function () {
     };
 }();
 
-var search = function () {
-    var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(query, options) {
-        var index, dir, search, sourceName, search_prompt, spinner, results, _ref4, choices, exit, prompt, _ref5, selection, tasks;
+var list = function () {
+    var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(query, options) {
+        var _options$indexPath3, indexPath, restOpts, index;
 
-        return _regenerator2.default.wrap(function _callee4$(_context4) {
+        return _regenerator2.default.wrap(function _callee3$(_context3) {
             while (1) {
-                switch (_context4.prev = _context4.next) {
+                switch (_context3.prev = _context3.next) {
+                    case 0:
+                        _options$indexPath3 = options.indexPath, indexPath = _options$indexPath3 === undefined ? _utils.INDEX_PATH : _options$indexPath3, restOpts = (0, _objectWithoutProperties3.default)(options, ["indexPath"]);
+
+                        if (fs.existsSync(indexPath)) console.error("index file " + indexPath + " already exists.");else {
+                            index = (0, _utils.load_index)(indexPath);
+
+                            console.log(chalk.green("✓"), "index file " + indexPath + " is created!");
+                        }
+                        return _context3.abrupt("return", process.exit());
+
+                    case 3:
+                    case "end":
+                        return _context3.stop();
+                }
+            }
+        }, _callee3, this);
+    }));
+
+    return function list(_x5, _x6) {
+        return _ref3.apply(this, arguments);
+    };
+}();
+
+var search = function () {
+    var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(query, options) {
+        var index, dir, search, sourceName, search_prompt, spinner, results, _ref5, choices, exit, prompt, _ref6, selection, tasks;
+
+        return _regenerator2.default.wrap(function _callee5$(_context5) {
+            while (1) {
+                switch (_context5.prev = _context5.next) {
                     case 0:
                         exit = function exit(ch, key) {
                             if (key && EXIT_KEYS.indexOf(key.name) === -1) return;
@@ -134,11 +164,11 @@ var search = function () {
                         options = (0, _extends3.default)({}, _utils.DEFAULT_CONFIG.search, index.search || {}, options);
 
                         if (options.limit) {
-                            _context4.next = 6;
+                            _context5.next = 6;
                             break;
                         }
 
-                        return _context4.abrupt("return", console.error(chalk.red('OPTION_ERROR: options.limit is not specified or 0')));
+                        return _context5.abrupt("return", console.error(chalk.red('OPTION_ERROR: options.limit is not specified or 0')));
 
                     case 6:
                         // add options.backend
@@ -146,11 +176,11 @@ var search = function () {
                         sourceName = backends.NAMES[options.source];
 
                         if (!(!search && typeof search === "function")) {
-                            _context4.next = 10;
+                            _context5.next = 10;
                             break;
                         }
 
-                        return _context4.abrupt("return", console.error(chalk.red("OPTION_ERROR: options.source is not in the white list " + backends.SOURCES)));
+                        return _context5.abrupt("return", console.error(chalk.red("OPTION_ERROR: options.source is not in the white list " + backends.SOURCES)));
 
                     case 10:
                         search_prompt = {
@@ -160,24 +190,24 @@ var search = function () {
                             pageSize: options.limit * 2 // when this is less than the real screen estate, it gets very ugly.
                             // todo: measure the actual height of the screen
                         };
-                        spinner = ora("searching " + chalk.yellow(sourceName) + " for " + chalk.green(query)).start();
+                        spinner = ora("searching " + chalk.yellow(sourceName) + " for " + chalk.green(query.join(' '))).start();
                         results = void 0;
-                        _context4.prev = 13;
-                        _context4.next = 16;
+                        _context5.prev = 13;
+                        _context5.next = 16;
                         return search(query, options.limit);
 
                     case 16:
-                        _ref4 = _context4.sent;
-                        results = _ref4.results;
-                        _context4.next = 25;
+                        _ref5 = _context5.sent;
+                        results = _ref5.results;
+                        _context5.next = 25;
                         break;
 
                     case 20:
-                        _context4.prev = 20;
-                        _context4.t0 = _context4["catch"](13);
+                        _context5.prev = 20;
+                        _context5.t0 = _context5["catch"](13);
 
                         spinner.stop();
-                        if (_context4.t0.code === _googleScholar.ERR_BOT) console.error(chalk.green("\nYou are detected as a bot\n"), _context4.t0);else console.error(chalk.red('\nsomething went wrong during search\n'), _context4.t0);
+                        if (_context5.t0.code === _googleScholar.ERR_BOT) console.error(chalk.green("\nYou are detected as a bot\n"), _context5.t0);else console.error(chalk.red('\nsomething went wrong during search\n'), _context5.t0);
                         process.exit();
 
                     case 25:
@@ -190,22 +220,22 @@ var search = function () {
 
 
                         process.stdin.on('keypress', exit);
-                        _context4.next = 31;
+                        _context5.next = 31;
                         return prompt;
 
                     case 31:
-                        _ref5 = _context4.sent;
-                        selection = _ref5.selection;
+                        _ref6 = _context5.sent;
+                        selection = _ref6.selection;
 
                         process.stdin.removeListener('keypress', exit);
 
                         spinner = ora("working").start();
                         tasks = selection.map(function () {
-                            var _ref6 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(title, index) {
+                            var _ref7 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(title, index) {
                                 var selected, fn;
-                                return _regenerator2.default.wrap(function _callee3$(_context3) {
+                                return _regenerator2.default.wrap(function _callee4$(_context4) {
                                     while (1) {
-                                        switch (_context3.prev = _context3.next) {
+                                        switch (_context4.prev = _context4.next) {
                                             case 0:
                                                 selected = results[choices.indexOf(title)];
 
@@ -214,21 +244,21 @@ var search = function () {
                                                     spinner.info(selected);
                                                 }
                                                 fn = (0, _path.join)(dir, (0, _utils.url2fn)(selected.pdfUrl));
-                                                _context3.prev = 3;
+                                                _context4.prev = 3;
 
                                                 if (!fs.existsSync(fn)) {
-                                                    _context3.next = 8;
+                                                    _context4.next = 8;
                                                     break;
                                                 }
 
                                                 spinner.warn("the file " + fn + " already exists! Skipping the download.");
-                                                _context3.next = 12;
+                                                _context4.next = 12;
                                                 break;
 
                                             case 8:
                                                 // todo: use unified single spinner for the entire parallel task stack.
                                                 spinner.info("downloading " + selected.pdfUrl + " to " + fn);
-                                                _context3.next = 11;
+                                                _context4.next = 11;
                                                 return (0, _utils.curl)(selected.pdfUrl, fn);
 
                                             case 11:
@@ -236,28 +266,28 @@ var search = function () {
 
                                             case 12:
                                                 if (!options.open) {
-                                                    _context3.next = 17;
+                                                    _context4.next = 17;
                                                     break;
                                                 }
 
                                                 spinner.info(chalk.green("opening the pdf file " + fn));
                                                 // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
-                                                _context3.next = 16;
+                                                _context4.next = 16;
                                                 return (0, _utils2.sleep)(200);
 
                                             case 16:
                                                 open(fn);
 
                                             case 17:
-                                                _context3.next = 23;
+                                                _context4.next = 23;
                                                 break;
 
                                             case 19:
-                                                _context3.prev = 19;
-                                                _context3.t0 = _context3["catch"](3);
+                                                _context4.prev = 19;
+                                                _context4.t0 = _context4["catch"](3);
 
                                                 spinner.fail("failed to save " + fn + " due to");
-                                                console.log(_context3.t0);
+                                                console.log(_context4.t0);
 
                                             case 23:
                                                 try {
@@ -271,17 +301,17 @@ var search = function () {
 
                                             case 24:
                                             case "end":
-                                                return _context3.stop();
+                                                return _context4.stop();
                                         }
                                     }
-                                }, _callee3, this, [[3, 19]]);
+                                }, _callee4, this, [[3, 19]]);
                             }));
 
-                            return function (_x7, _x8) {
-                                return _ref6.apply(this, arguments);
+                            return function (_x9, _x10) {
+                                return _ref7.apply(this, arguments);
                             };
                         }());
-                        _context4.next = 38;
+                        _context5.next = 38;
                         return _promise2.default.all(tasks);
 
                     case 38:
@@ -290,14 +320,14 @@ var search = function () {
 
                     case 40:
                     case "end":
-                        return _context4.stop();
+                        return _context5.stop();
                 }
             }
-        }, _callee4, this, [[13, 20]]);
+        }, _callee5, this, [[13, 20]]);
     }));
 
-    return function search(_x5, _x6) {
-        return _ref3.apply(this, arguments);
+    return function search(_x7, _x8) {
+        return _ref4.apply(this, arguments);
     };
 }();
 
@@ -343,7 +373,7 @@ program.command('init').option('--index-path <index path>', "path for the yatta.
 
 program.command('set <key.path> <value>').description("modifies the configuration file, located at " + _utils.INDEX_PATH + " by default. Use dot separated path string as the key.").option('--index-path <index path>', "path for the " + _utils.INDEX_PATH + " index file", _utils.INDEX_PATH).action(set);
 
-program.command('search <query>', { isDefault: true }).description('Search for papers with the specified search engine.')
+program.command('search <query...>', { isDefault: true }).description('Search for papers with the specified search engine.')
 // todo: do validation here in the spec.
 .option("-s --source <" + (0, _keys2.default)(backends.SOURCES) + ">", "The search backend to use, choose among " + (0, _keys2.default)(backends.SOURCES) + ". Default is " + backends.GOOGLE_SCHOLAR, function (s) {
     return s.toLowerCase();
