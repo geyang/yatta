@@ -7,12 +7,7 @@ function makeUrl(query, max_results = 100, sort_by = "submittedDate") {
     return `http://export.arxiv.org/api/query?sortBy=${sort_by}&max_results=${max_results}&search_query=${query}`;
 }
 
-const key_map = {
-    author: 'au',
-    q: 'all',
-    title: 'ti',
-    category: 'cat'
-};
+const key_map = {author: 'au', q: 'all', title: 'ti', category: 'cat'};
 
 function coerceQueryKey(key) {
     return key_map[key] || key;
@@ -31,17 +26,48 @@ function coerceQueryValue(key, value) {
     }
 }
 
+function polish(op) {
+    return (a, b) => `${op.trim().toUpperCase()}+${a}+${b}`;
+}
+
+function name_regularization(...names) {
+    if (names.length <= 1) return names.join('_');
+    const last = names.pop();
+    return [last, ...names].join('_');
+}
+
+// console.log(name_regularization('ge', 'yang'));
+
 /**
- * query: a list of strings, of the form ["au:some", "text" "ti:like" "this"]
+ * query: a list of strings, of the form ["au:some", "text", "actual-lastname", "ti:like" "this", "all:typical query", "cat:cs"]
  * returns AND+au:+some+text+AND+ti:+like+this
  * */
 function coerceQuery(query) {
-    return query.join('+')
-        .replace(/(^|\+)(au|ti|all|cat:)/g, "$1AND+$2")
-        .replace(/:([^+])/g, ":+$1")
+    const queryString = query.join(' ');
+    const segments = queryString.split(/\s*\b([A-z]*:)\s*/).filter(s => !!s); //filter empty strings
+    const queryContext = [];
+    for (let s of segments) {
+        let last = queryContext[queryContext.length - 1];
+        if (s.match(/^[A-z]+:$/)) {
+            last = {key: s};
+            queryContext.push(last);
+        } else if (last && last.key === 'au:') {
+            last.value = name_regularization(...s.split(" "))
+        } else if (last && last.key === 'cat:') {
+            if (s.match(/\s/)) throw new Error(`"cat:${s}" is not parsing correctly because of the white space`);
+            last.value = s;
+        } else {
+            if (!last) {
+                last = {key: "all:"};
+                queryContext.push(last);
+            }
+            last.value = s.split(' ').reduce(polish('and'))
+        }
+    }
+    return queryContext.map(c => `${c.key}+${c.value}`).reduce(polish('and'))
 }
 
-// const r = coerceQuery(["au:some", "text", "ti:like", "this"]);
+// const r = coerceQuery(["au:some", "first", "lastname", "ti:like", "this", "and", "that"]);
 // console.log(r);
 
 function unique(a, k) {
