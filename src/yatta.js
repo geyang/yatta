@@ -69,7 +69,7 @@ async function set(key, value, options) {
 
 async function search(query, options) {
     const index = load_index(options.indexPath);
-    options = {...(index.search || {}), ...options};
+    options = {...DEFAULT_CONFIG.search, ...(index.search || {}), ...options};
     if (!options.limit)
         return console.error(chalk.red('OPTION_ERROR: options.limit is not specified or 0'));
     // add options.backend
