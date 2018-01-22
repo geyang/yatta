@@ -67,7 +67,7 @@ var init = function () {
 
 var set = function () {
     var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(key, value, options) {
-        var _options$indexPath2, indexPath, restOpts, spinner, made, index, newIndex;
+        var _options$indexPath2, indexPath, restOpts, spinner, made, index, newIndex, papers, rest;
 
         return _regenerator2.default.wrap(function _callee2$(_context2) {
             while (1) {
@@ -90,7 +90,7 @@ var set = function () {
                         if (key === 'dir') try {
                             made = fs.ensureDirSync(value);
 
-                            if (made) spinner.succeed("just created a new folder " + value + "!");
+                            if (made) spinner.succeed("Creating a new folder " + value + "!");
                         } catch (err) {
                             spinner.fail(err);
                             process.exit();
@@ -98,14 +98,17 @@ var set = function () {
                         index = (0, _utils.load_index)(indexPath);
 
                         try {
+                            spinner.start("updating index file " + indexPath);
                             //todo: need to add casting, s.a. "true" => true
                             newIndex = (0, _utils.dot_update)(index, key.split('.'), value);
 
                             (0, _utils.dump_index)(indexPath, newIndex);
-                            console.log(chalk.green("✓"), "index file " + indexPath + " has been updated!");
-                            console.log(newIndex);
+                            spinner.succeed(chalk.green("✓"), "index file " + indexPath + " has been updated!");
+                            papers = newIndex.papers, rest = (0, _objectWithoutProperties3.default)(newIndex, ["papers"]);
+
+                            console.log(rest);
                         } catch (err) {
-                            console.error(err);
+                            spinner.fail(err);
                         }
                         process.exit();
 
@@ -278,7 +281,7 @@ var search = function () {
                         return show_list();
 
                     case 35:
-                        spinner = ora("working").start();
+                        spinner = ora();
                         tasks = selection.map(function () {
                             var _ref8 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(title, index) {
                                 var selected, fn;
@@ -306,7 +309,7 @@ var search = function () {
 
                                             case 8:
                                                 // todo: use unified single spinner for the entire parallel task stack.
-                                                spinner.info("downloading " + selected.pdfUrl + " to " + fn);
+                                                spinner.start("downloading " + selected.pdfUrl + " to " + fn);
                                                 _context5.next = 11;
                                                 return (0, _utils.curl)(selected.pdfUrl, fn);
 
@@ -319,7 +322,7 @@ var search = function () {
                                                     break;
                                                 }
 
-                                                spinner.info(chalk.green("opening the pdf file " + fn));
+                                                spinner.start(chalk.green("opening the pdf file " + fn));
                                                 // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
                                                 _context5.next = 16;
                                                 return (0, _utils2.sleep)(200);
@@ -340,6 +343,7 @@ var search = function () {
 
                                             case 23:
                                                 try {
+                                                    spinner.start("attaching bib entry");
                                                     selected.files = [].concat((0, _toConsumableArray3.default)(selected.files || []), [fn]);
                                                     (0, _utils.update_index)(options.indexPath, selected);
                                                     spinner.succeed("bib entry attached");
