@@ -429,7 +429,7 @@ program.command('init').option('--index-path <index path>', "path for the yatta.
 // .option('-O --open', "open the downloaded pdf file")
 .action(init);
 
-program.command('set <key.path> <value>').description("modifies the configuration file, located at " + _utils.INDEX_PATH + " by default. Use dot separated path string as the key.").option('--index-path <index path>', "path for the " + _utils.INDEX_PATH + " index file", _utils.INDEX_PATH).action(set);
+program.command('set [key.path] [value]').description("modifies the configuration file, located at " + _utils.INDEX_PATH + " by default. Use dot separated path string as the key.").option('--index-path <index path>', "path for the " + _utils.INDEX_PATH + " index file", _utils.INDEX_PATH).action(set);
 
 program.command('search <query...>', { isDefault: true }).description("Search for papers with google-scholar and arxiv!\n\n  Examples:\n      ~> " + chalk.green('yatta search -s arxiv "compress and control" au:bellemare"') + "\n      # >> generates a query " + chalk.blue('("compress and control" AND au:bellemare)') + "\n      ~> " + chalk.green('yatta search -s arxiv electrons on helium schuster') + "\n      # >> generates a query " + chalk.blue('(schuster AND (helium AND (electrons AND on)))') + "\n      \n  We use a carefully designed parsing logic to generate the query AST for arxiv.org.\n  This is a LOT easier to use than the clunky arxiv website!")
 // todo: do validation here in the spec.
