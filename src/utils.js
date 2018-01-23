@@ -6,7 +6,7 @@ import path from "path";
 import http from "http";
 import yaml from "js-yaml";
 import fs from "fs-extra";
-import * as backends from "../dist/backends";
+import * as backends from "./backends";
 
 export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));

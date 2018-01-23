@@ -4,7 +4,7 @@ import {
     curl, DEFAULT_CONFIG, dot, dot_update, dump_index, ENTRY_LIMIT, INDEX_PATH,
     init_index, load_index, simple, update_index, url2fn
 } from "./utils";
-import {sleep} from "../dist/utils";
+import {sleep} from "./utils";
 import * as backends from "./backends";
 import {ERR_BOT} from "./backends/google-scholar";
 import {join as pathJoin} from "path";

@@ -47,8 +47,10 @@ function scholarResultsCallback(resolve, reject) {
             }
         } else {
             let $ = cheerio.load(html);
-
-            let results = $('.gs_r');
+            // debug only
+            // const fs = require('fs-extra');
+            // fs.writeFileSync('test-google-scholar.html', html, {overwrite: true});
+            let results = $('.gs_r.gs_or.gs_scl'); // note: use a more stringent class-string
             let resultCount = 0;
             let nextUrl = '';
             let prevUrl = '';
@@ -65,13 +67,9 @@ function scholarResultsCallback(resolve, reject) {
                 let title = $(r).find('.gs_ri h3').text().trim();
                 let url = $(r).find('.gs_ri h3 a').attr('href');
                 let authorsString = $(r).find('.gs_ri .gs_a').text();
-                let [authors, journalYear, website] = authorsString.split('- ').map(s => s.trim());
-                let [journal, year] = journalYear.split(',');
-                authors = authors.split(', ').map(a => ({name: a}));
-                // let authors = $(r).find('.gs_ri .gs_a a').map((i, e) => ({
-                //     name: e.children[0].data,
-                //     url: e.attribs.href || ""
-                // }));
+                let [authors, journalYear, publisher] = authorsString.split(/\s+-\s+/).map(s => s.trim());
+                let year = parseInt(journalYear.split(/\s*,\s+/).slice(-1)[0]);
+                authors = authors.split(/\s*,\s+/).filter(a => a.trim()).filter(a => a !== "…").map(a => ({name: a}));
                 let description = $(r).find('.gs_ri .gs_rs').text();
                 let footerLinks = $(r).find('.gs_ri .gs_fl a');
                 let citedCount = 0;
@@ -79,9 +77,8 @@ function scholarResultsCallback(resolve, reject) {
                 let relatedUrl = '';
                 let pdfUrl = $($(r).find('.gs_ggsd a')[0]).attr('href');
 
-                if ($(footerLinks[0]).text().indexOf(CITATION_COUNT_PREFIX) >= 0) {
-                    citedCount = $(footerLinks[0]).text().substr(CITATION_COUNT_PREFIX.length)
-                }
+                if ($(footerLinks[0]).text().indexOf(CITATION_COUNT_PREFIX) >= 0)
+                    citedCount = $(footerLinks[0]).text().substr(CITATION_COUNT_PREFIX.length);
                 if ($(footerLinks[0]).attr &&
                     $(footerLinks[0]).attr('href') &&
                     $(footerLinks[0]).attr('href').length > 0) {
