@@ -214,7 +214,7 @@ program
     .action(init);
 
 program
-    .command('set <key.path> <value>')
+    .command('set [key.path] [value]')
     .description(`modifies the configuration file, located at ${INDEX_PATH} by default. Use dot separated path string as the key.`)
     .option('--index-path <index path>', `path for the ${INDEX_PATH} index file`, INDEX_PATH)
     .action(set);
