@@ -41,6 +41,11 @@ async function init(options) {
  * yatta set search.limit 100
  * */
 async function set(key, value, options) {
+    if (!key) {
+        const {papers, ...rest} = load_index(indexPath);
+        console.log(rest);
+        process.exit();
+    }
     //todo: use schema instead of this crapy hack
     if (value === "true") value = true;
     else if (value === 'false') value = false;
