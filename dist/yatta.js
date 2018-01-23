@@ -67,12 +67,18 @@ var init = function () {
 
 var set = function () {
     var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(key, value, options) {
-        var _options$indexPath2, indexPath, restOpts, spinner, made, index, newIndex, papers, rest;
+        var _load_index, papers, rest, _options$indexPath2, indexPath, restOpts, spinner, made, index, newIndex, _papers, _rest;
 
         return _regenerator2.default.wrap(function _callee2$(_context2) {
             while (1) {
                 switch (_context2.prev = _context2.next) {
                     case 0:
+                        if (!key) {
+                            _load_index = (0, _utils.load_index)(indexPath), papers = _load_index.papers, rest = (0, _objectWithoutProperties3.default)(_load_index, ["papers"]);
+
+                            console.log(rest);
+                            process.exit();
+                        }
                         //todo: use schema instead of this crapy hack
                         if (value === "true") value = true;else if (value === 'false') value = false;else if (value.match(/^[0-9]*(\.)[.0-9]*$/)) value = parseFloat(value);
 
@@ -104,15 +110,15 @@ var set = function () {
 
                             (0, _utils.dump_index)(indexPath, newIndex);
                             spinner.succeed(chalk.green("✓"), "index file " + indexPath + " has been updated!");
-                            papers = newIndex.papers, rest = (0, _objectWithoutProperties3.default)(newIndex, ["papers"]);
+                            _papers = newIndex.papers, _rest = (0, _objectWithoutProperties3.default)(newIndex, ["papers"]);
 
-                            console.log(rest);
+                            console.log(_rest);
                         } catch (err) {
                             spinner.fail(err);
                         }
                         process.exit();
 
-                    case 9:
+                    case 10:
                     case "end":
                         return _context2.stop();
                 }
