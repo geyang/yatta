@@ -158,8 +158,10 @@ function scholarResultsCallback(resolve, reject) {
             }
         } else {
             var $ = cheerio.load(html);
-
-            var results = $('.gs_r');
+            // debug only
+            // const fs = require('fs-extra');
+            // fs.writeFileSync('test-google-scholar.html', html, {overwrite: true});
+            var results = $('.gs_r.gs_or.gs_scl'); // note: use a more stringent class-string
             var resultCount = 0;
             var nextUrl = '';
             var prevUrl = '';
@@ -177,26 +179,22 @@ function scholarResultsCallback(resolve, reject) {
                 var url = $(r).find('.gs_ri h3 a').attr('href');
                 var authorsString = $(r).find('.gs_ri .gs_a').text();
 
-                var _authorsString$split$ = authorsString.split('- ').map(function (s) {
+                var _authorsString$split$ = authorsString.split(/\s+-\s+/).map(function (s) {
                     return s.trim();
                 }),
                     _authorsString$split$2 = (0, _slicedToArray3.default)(_authorsString$split$, 3),
                     authors = _authorsString$split$2[0],
                     journalYear = _authorsString$split$2[1],
-                    website = _authorsString$split$2[2];
+                    publisher = _authorsString$split$2[2];
 
-                var _journalYear$split = journalYear.split(','),
-                    _journalYear$split2 = (0, _slicedToArray3.default)(_journalYear$split, 2),
-                    journal = _journalYear$split2[0],
-                    year = _journalYear$split2[1];
-
-                authors = authors.split(', ').map(function (a) {
+                var year = parseInt(journalYear.split(/\s*,\s+/).slice(-1)[0]);
+                authors = authors.split(/\s*,\s+/).filter(function (a) {
+                    return a.trim();
+                }).filter(function (a) {
+                    return a !== "…";
+                }).map(function (a) {
                     return { name: a };
                 });
-                // let authors = $(r).find('.gs_ri .gs_a a').map((i, e) => ({
-                //     name: e.children[0].data,
-                //     url: e.attribs.href || ""
-                // }));
                 var description = $(r).find('.gs_ri .gs_rs').text();
                 var footerLinks = $(r).find('.gs_ri .gs_fl a');
                 var citedCount = 0;
@@ -204,9 +202,7 @@ function scholarResultsCallback(resolve, reject) {
                 var relatedUrl = '';
                 var pdfUrl = $($(r).find('.gs_ggsd a')[0]).attr('href');
 
-                if ($(footerLinks[0]).text().indexOf(CITATION_COUNT_PREFIX) >= 0) {
-                    citedCount = $(footerLinks[0]).text().substr(CITATION_COUNT_PREFIX.length);
-                }
+                if ($(footerLinks[0]).text().indexOf(CITATION_COUNT_PREFIX) >= 0) citedCount = $(footerLinks[0]).text().substr(CITATION_COUNT_PREFIX.length);
                 if ($(footerLinks[0]).attr && $(footerLinks[0]).attr('href') && $(footerLinks[0]).attr('href').length > 0) {
                     citedUrl = GOOGLE_SCHOLAR_URL_PREFIX + $(footerLinks[0]).attr('href');
                 }

@@ -75,7 +75,7 @@ var _fsExtra = require("fs-extra");
 
 var _fsExtra2 = _interopRequireDefault(_fsExtra);
 
-var _backends = require("../dist/backends");
+var _backends = require("./backends");
 
 var backends = _interopRequireWildcard(_backends);
 

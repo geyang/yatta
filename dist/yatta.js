@@ -325,7 +325,7 @@ var search = function () {
                                                 spinner.start(chalk.green("opening the pdf file " + fn));
                                                 // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
                                                 _context5.next = 16;
-                                                return (0, _utils2.sleep)(200);
+                                                return (0, _utils.sleep)(200);
 
                                             case 16:
                                                 open(fn);
@@ -386,8 +386,6 @@ var search = function () {
 }();
 
 var _utils = require("./utils");
-
-var _utils2 = require("../dist/utils");
 
 var _backends = require("./backends");
 
