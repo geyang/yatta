@@ -133,22 +133,16 @@ var set = function () {
 
 var list = function () {
     var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(query, options) {
-        var _options$indexPath3, indexPath, restOpts, index;
+        var _options$indexPath3, indexPath, restOpts;
 
         return _regenerator2.default.wrap(function _callee3$(_context3) {
             while (1) {
                 switch (_context3.prev = _context3.next) {
                     case 0:
                         _options$indexPath3 = options.indexPath, indexPath = _options$indexPath3 === undefined ? _utils.INDEX_PATH : _options$indexPath3, restOpts = (0, _objectWithoutProperties3.default)(options, ["indexPath"]);
-
-                        if (fs.existsSync(indexPath)) console.error("index file " + indexPath + " already exists.");else {
-                            index = (0, _utils.load_index)(indexPath);
-
-                            console.log(chalk.green("✓"), "index file " + indexPath + " is created!");
-                        }
                         return _context3.abrupt("return", process.exit());
 
-                    case 3:
+                    case 2:
                     case "end":
                         return _context3.stop();
                 }
