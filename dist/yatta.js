@@ -13,6 +13,10 @@ var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
 
 var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 
+var _stringify = require("babel-runtime/core-js/json/stringify");
+
+var _stringify2 = _interopRequireDefault(_stringify);
+
 var _extends2 = require("babel-runtime/helpers/extends");
 
 var _extends3 = _interopRequireDefault(_extends2);
@@ -284,22 +288,23 @@ var search = function () {
                         spinner = ora();
                         tasks = selection.map(function () {
                             var _ref8 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(title, index) {
-                                var selected, fn, url;
+                                var selected, url, fn;
                                 return _regenerator2.default.wrap(function _callee5$(_context5) {
                                     while (1) {
                                         switch (_context5.prev = _context5.next) {
                                             case 0:
                                                 selected = results[choices.indexOf(title)];
+                                                url = (0, _resolver.pdfResolver)(selected.url, selected.pdfUrl);
 
-                                                if (!selected.pdfUrl) {
-                                                    spinner.warn(chalk.yellow('href to PDF file does not exist with this entry.'));
-                                                    spinner.info(selected);
+                                                if (!url) {
+                                                    spinner.fail("url " + (0, _stringify2.default)(selected.url) + " and pdfUrl \"" + (0, _stringify2.default)(selected.pdfUrl) + "\" \n                    are not resolving correctly. Please feel free to email " + package_config.author);
+                                                    process.exit();
                                                 }
-                                                fn = (0, _path.join)(dir, (0, _utils.url2fn)(selected.pdfUrl));
-                                                _context5.prev = 3;
+                                                fn = (0, _path.join)(dir, (0, _utils.url2fn)(url));
+                                                _context5.prev = 4;
 
                                                 if (!fs.existsSync(fn)) {
-                                                    _context5.next = 8;
+                                                    _context5.next = 9;
                                                     break;
                                                 }
 
@@ -307,18 +312,15 @@ var search = function () {
                                                 _context5.next = 13;
                                                 break;
 
-                                            case 8:
-                                                // todo: download link resolution:
-                                                // aps:
+                                            case 9:
+                                                // done: download link resolution:
                                                 // todo: use unified single spinner for the entire parallel task stack.
-                                                url = (0, _resolver.pdfResolver)(selected.url, selected.pdfUrl);
-
                                                 spinner.start("downloading " + url + " to " + fn);
                                                 _context5.next = 12;
                                                 return (0, _utils.curl)(url, fn);
 
                                             case 12:
-                                                spinner.succeed("pdf file is saved");
+                                                spinner.succeed("saved at " + fn + "; " + chalk.red('If corrupted, go to:') + " " + url);
 
                                             case 13:
                                                 if (!options.open) {
@@ -340,7 +342,7 @@ var search = function () {
 
                                             case 20:
                                                 _context5.prev = 20;
-                                                _context5.t0 = _context5["catch"](3);
+                                                _context5.t0 = _context5["catch"](4);
 
                                                 spinner.fail("failed to save " + fn + " due to");
                                                 console.log(_context5.t0);
@@ -361,7 +363,7 @@ var search = function () {
                                                 return _context5.stop();
                                         }
                                     }
-                                }, _callee5, this, [[3, 20]]);
+                                }, _callee5, this, [[4, 20]]);
                             }));
 
                             return function (_x9, _x10) {

@@ -176,7 +176,7 @@ function scholarResultsCallback(resolve, reject) {
             results.each(function (i, r) {
                 $(r).find('.gs_ri h3 span').remove();
                 var title = $(r).find('.gs_ri h3').text().trim();
-                var url = $(r).find('.gs_ri h3 a').attr('href');
+                var url = $(r).find('.gs_ri h3 a').attr('href') || "";
                 var authorsString = $(r).find('.gs_ri .gs_a').text();
 
                 var _authorsString$split$ = authorsString.split(/\s+-\s+/).map(function (s) {
@@ -200,7 +200,7 @@ function scholarResultsCallback(resolve, reject) {
                 var citedCount = 0;
                 var citedUrl = '';
                 var relatedUrl = '';
-                var pdfUrl = $($(r).find('.gs_ggsd a')[0]).attr('href');
+                var pdfUrl = $($(r).find('.gs_ggsd a')[0]).attr('href') || null;
 
                 if ($(footerLinks[0]).text().indexOf(CITATION_COUNT_PREFIX) >= 0) citedCount = $(footerLinks[0]).text().substr(CITATION_COUNT_PREFIX.length);
                 if ($(footerLinks[0]).attr && $(footerLinks[0]).attr('href') && $(footerLinks[0]).attr('href').length > 0) {

@@ -188,7 +188,7 @@ function load_index(indexPath) {
 }
 
 function dump_index(indexPath, index) {
-    var content = _jsYaml2.default.safeDump(index, { 'sortKeys': true });
+    var content = _jsYaml2.default.safeDump(index, { 'styles': { '!!undefined': 'null' }, 'sortKeys': true });
     _fsExtra2.default.writeFileSync(indexPath, content);
 }
 
