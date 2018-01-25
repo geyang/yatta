@@ -85,12 +85,6 @@ async function set(key, value, options) {
 
 async function list(query, options) {
     const {indexPath = INDEX_PATH, ...restOpts} = options;
-    if (fs.existsSync(indexPath))
-        console.error(`index file ${indexPath} already exists.`);
-    else {
-        let index = load_index(indexPath);
-        console.log(chalk.green("✓"), `index file ${indexPath} is created!`);
-    }
     return process.exit()
 }
 
