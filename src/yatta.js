@@ -8,6 +8,7 @@ import {sleep} from "./utils";
 import * as backends from "./backends";
 import {ERR_BOT} from "./backends/google-scholar";
 import {join as pathJoin} from "path";
+import {pdfResolver} from "./resolver";
 
 const ora = require("ora");
 const fs = require("fs-extra");
@@ -165,9 +166,12 @@ async function search(query, options) {
                 if (fs.existsSync(fn)) {
                     spinner.warn(`the file ${fn} already exists! Skipping the download.`);
                 } else {
+                    // todo: download link resolution:
+                    // aps:
                     // todo: use unified single spinner for the entire parallel task stack.
-                    spinner.start(`downloading ${selected.pdfUrl} to ${fn}`);
-                    await curl(selected.pdfUrl, fn);
+                    let url = pdfResolver(selected.url, selected.pdfUrl);
+                    spinner.start(`downloading ${url} to ${fn}`);
+                    await curl(url, fn);
                     spinner.succeed("pdf file is saved");
                 }
                 if (options.open) {

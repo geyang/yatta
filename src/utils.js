@@ -58,13 +58,13 @@ export function url2fn(url) {
 }
 
 const USER_AGENT = 'curl/7.52.1';
-const referrer = "https://scholar.google.com/scholar";
+const REFERRER = "https://scholar.google.com/scholar";
 // doesn't work with arxiv
 // 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7';
 
 export function curl(url, targetPath) {
     const file = fs.createWriteStream(targetPath);
-    return new Promise((resolve, reject) => request({url, headers: {'User-Agent': USER_AGENT, 'Referer': referrer}})
+    return new Promise((resolve, reject) => request({url, headers: {'User-Agent': USER_AGENT, 'Referer': REFERRER}})
         .pipe(file).on('error', reject).on('finish', resolve));
 }
 
