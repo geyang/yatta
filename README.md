@@ -36,6 +36,16 @@ for example for the following query, you get:
 yatta search au:bellemare ti:compress and controll
 ```
 
+## Settings
+
+you can run
+```bash
+yatta set dir <name of your target dir>  # this sets where you are going to save the pdf files.
+yatta set search.source <google-scholar or arxiv>  # this sets the search engine to unse
+yatta set search.limit <an integer>  # this sets the number of return entries to show. Pagination support will come later.
+yatta set search.open <true or false>  # this sets the behavior after download: open the pdf up or not?
+```
+
 
 ![./figures/help.png](./figures/help.png)
 

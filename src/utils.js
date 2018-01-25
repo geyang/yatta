@@ -107,7 +107,7 @@ export function load_index(indexPath) {
 }
 
 export function dump_index(indexPath, index) {
-    const content = yaml.safeDump(index, {'sortKeys': true});
+    const content = yaml.safeDump(index, {'styles': {'!!undefined': 'null'}, 'sortKeys': true});
     fs.writeFileSync(indexPath, content);
 }
 

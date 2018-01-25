@@ -157,22 +157,22 @@ async function search(query, options) {
         spinner = ora();
         const tasks = selection.map(async function (title, index) {
             const selected = results[choices.indexOf(title)];
-            if (!selected.pdfUrl) {
-                spinner.warn(chalk.yellow('href to PDF file does not exist with this entry.'));
-                spinner.info(selected);
+            let url = pdfResolver(selected.url, selected.pdfUrl);
+            if (!url) {
+                spinner.fail(`url ${JSON.stringify(selected.url)} and pdfUrl "${JSON.stringify(selected.pdfUrl)}" 
+                    are not resolving correctly. Please feel free to email ${package_config.author}`);
+                process.exit();
             }
-            const fn = pathJoin(dir, url2fn(selected.pdfUrl));
+            const fn = pathJoin(dir, url2fn(url));
             try {
                 if (fs.existsSync(fn)) {
                     spinner.warn(`the file ${fn} already exists! Skipping the download.`);
                 } else {
-                    // todo: download link resolution:
-                    // aps:
+                    // done: download link resolution:
                     // todo: use unified single spinner for the entire parallel task stack.
-                    let url = pdfResolver(selected.url, selected.pdfUrl);
                     spinner.start(`downloading ${url} to ${fn}`);
                     await curl(url, fn);
-                    spinner.succeed("pdf file is saved");
+                    spinner.succeed(`saved at ${fn}; ` + chalk.red('If corrupted, go to:') + " " + url);
                 }
                 if (options.open) {
                     spinner.start(chalk.green(`opening the pdf file ${fn}`));

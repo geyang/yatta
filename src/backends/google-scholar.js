@@ -65,7 +65,7 @@ function scholarResultsCallback(resolve, reject) {
             results.each((i, r) => {
                 $(r).find('.gs_ri h3 span').remove();
                 let title = $(r).find('.gs_ri h3').text().trim();
-                let url = $(r).find('.gs_ri h3 a').attr('href');
+                let url = $(r).find('.gs_ri h3 a').attr('href') || "";
                 let authorsString = $(r).find('.gs_ri .gs_a').text();
                 let [authors, journalYear, publisher] = authorsString.split(/\s+-\s+/).map(s => s.trim());
                 let year = parseInt(journalYear.split(/\s*,\s+/).slice(-1)[0]);
@@ -75,7 +75,7 @@ function scholarResultsCallback(resolve, reject) {
                 let citedCount = 0;
                 let citedUrl = '';
                 let relatedUrl = '';
-                let pdfUrl = $($(r).find('.gs_ggsd a')[0]).attr('href');
+                let pdfUrl = $($(r).find('.gs_ggsd a')[0]).attr('href') || null;
 
                 if ($(footerLinks[0]).text().indexOf(CITATION_COUNT_PREFIX) >= 0)
                     citedCount = $(footerLinks[0]).text().substr(CITATION_COUNT_PREFIX.length);
