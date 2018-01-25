@@ -1,0 +1,27 @@
+dir: ./
+papers:
+  - authors:
+      - name: H Paik
+      - name: DI Schuster
+      - name: LS Bishop
+      - name: G Kirchmair…
+    citedCount: 0
+    citedUrl: 'https://scholar.google.comjavascript:void(0)'
+    description: >-
+      Abstract Superconducting quantum circuits based on Josephson junctions
+      have made rapid progress in demonstrating quantum behavior and
+      scalability. However, the future prospects ultimately depend upon the
+      intrinsic coherence of Josephson junctions, and whether 
+    files:
+      - PhysRevLett.107.240501.pdf
+    pdfUrl: 'http://link.aps.org/pdf/10.1103/PhysRevLett.107.240501'
+    relatedUrl: ''
+    title: >-
+      Observation of high coherence in Josephson junction qubits measured in a
+      three-dimensional circuit QED architecture
+    url: 'https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.107.240501'
+    year: 2011
+search:
+  limit: 15
+  open: true
+  source: arxiv
