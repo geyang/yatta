@@ -284,7 +284,7 @@ var search = function () {
                         spinner = ora();
                         tasks = selection.map(function () {
                             var _ref8 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(title, index) {
-                                var selected, fn;
+                                var selected, fn, url;
                                 return _regenerator2.default.wrap(function _callee5$(_context5) {
                                     while (1) {
                                         switch (_context5.prev = _context5.next) {
@@ -304,44 +304,48 @@ var search = function () {
                                                 }
 
                                                 spinner.warn("the file " + fn + " already exists! Skipping the download.");
-                                                _context5.next = 12;
+                                                _context5.next = 13;
                                                 break;
 
                                             case 8:
+                                                // todo: download link resolution:
+                                                // aps:
                                                 // todo: use unified single spinner for the entire parallel task stack.
-                                                spinner.start("downloading " + selected.pdfUrl + " to " + fn);
-                                                _context5.next = 11;
-                                                return (0, _utils.curl)(selected.pdfUrl, fn);
+                                                url = (0, _resolver.pdfResolver)(selected.url, selected.pdfUrl);
 
-                                            case 11:
-                                                spinner.succeed("pdf file is saved");
+                                                spinner.start("downloading " + url + " to " + fn);
+                                                _context5.next = 12;
+                                                return (0, _utils.curl)(url, fn);
 
                                             case 12:
+                                                spinner.succeed("pdf file is saved");
+
+                                            case 13:
                                                 if (!options.open) {
-                                                    _context5.next = 17;
+                                                    _context5.next = 18;
                                                     break;
                                                 }
 
                                                 spinner.start(chalk.green("opening the pdf file " + fn));
                                                 // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
-                                                _context5.next = 16;
+                                                _context5.next = 17;
                                                 return (0, _utils.sleep)(200);
 
-                                            case 16:
+                                            case 17:
                                                 open(fn);
 
-                                            case 17:
-                                                _context5.next = 23;
+                                            case 18:
+                                                _context5.next = 24;
                                                 break;
 
-                                            case 19:
-                                                _context5.prev = 19;
+                                            case 20:
+                                                _context5.prev = 20;
                                                 _context5.t0 = _context5["catch"](3);
 
                                                 spinner.fail("failed to save " + fn + " due to");
                                                 console.log(_context5.t0);
 
-                                            case 23:
+                                            case 24:
                                                 try {
                                                     spinner.start("attaching bib entry");
                                                     selected.files = [].concat((0, _toConsumableArray3.default)(selected.files || []), [fn]);
@@ -352,12 +356,12 @@ var search = function () {
                                                     console.log(e, selected);
                                                 }
 
-                                            case 24:
+                                            case 25:
                                             case "end":
                                                 return _context5.stop();
                                         }
                                     }
-                                }, _callee5, this, [[3, 19]]);
+                                }, _callee5, this, [[3, 20]]);
                             }));
 
                             return function (_x9, _x10) {
@@ -394,6 +398,8 @@ var backends = _interopRequireWildcard(_backends);
 var _googleScholar = require("./backends/google-scholar");
 
 var _path = require("path");
+
+var _resolver = require("./resolver");
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 

@@ -138,14 +138,14 @@ function url2fn(url) {
 }
 
 var USER_AGENT = 'curl/7.52.1';
-var referrer = "https://scholar.google.com/scholar";
+var REFERRER = "https://scholar.google.com/scholar";
 // doesn't work with arxiv
 // 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/604.4.7 (KHTML, like Gecko) Version/11.0.2 Safari/604.4.7';
 
 function curl(url, targetPath) {
     var file = _fsExtra2.default.createWriteStream(targetPath);
     return new _promise2.default(function (resolve, reject) {
-        return (0, _request2.default)({ url: url, headers: { 'User-Agent': USER_AGENT, 'Referer': referrer } }).pipe(file).on('error', reject).on('finish', resolve);
+        return (0, _request2.default)({ url: url, headers: { 'User-Agent': USER_AGENT, 'Referer': REFERRER } }).pipe(file).on('error', reject).on('finish', resolve);
     });
 }
 
