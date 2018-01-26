@@ -62,6 +62,7 @@ There are two ways to get help:
 
 ## TODOs and Plans
 
+0. [ ] Work through the UX, make sure things make sense.
 1. [ ] save a copy of PDF and `yatta.yml` index under your home directory `~/.yatta`.
 2. [ ] sym-link or hard-link files from `~/.yatta/papers/` to your current directory.
 3. [ ] Add search from `~/.yatta/yatta.ml` to the results of `yatta search`.
@@ -74,4 +75,4 @@ There are two ways to get help:
     - edit bib
     - edit filename
     - delete bib
-
+7. [ ] add history to search terms (shall this be a `zsh` integration?)
