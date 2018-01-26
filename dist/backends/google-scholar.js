@@ -188,8 +188,8 @@ function scholarResultsCallback(resolve, reject) {
                     publisher = _authorsString$split$2[2];
 
                 var year = parseInt(journalYear.split(/\s*,\s+/).slice(-1)[0]);
-                authors = authors.split(/\s*,\s+/).filter(function (a) {
-                    return a.trim();
+                authors = authors.split(/\s*,\s+/).map(function (a) {
+                    return a.replace("…", " ").trim();
                 }).filter(function (a) {
                     return a !== "…";
                 }).map(function (a) {

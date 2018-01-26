@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.DEFAULT_CONFIG = exports.DEFAULT_CONFIG_INIT = exports.DEFAULT_DIR = exports.ENTRY_LIMIT = exports.INDEX_PATH = undefined;
+exports.DEFAULT_CONFIG = exports.DEFAULT_CONFIG_INIT = exports.DEFAULT_FILENAME = exports.DEFAULT_DIR = exports.ENTRY_LIMIT = exports.INDEX_PATH = undefined;
 
 var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
 
@@ -156,11 +156,13 @@ function curl(url, targetPath) {
 var INDEX_PATH = exports.INDEX_PATH = "yatta.yml";
 var ENTRY_LIMIT = exports.ENTRY_LIMIT = 15;
 var DEFAULT_DIR = exports.DEFAULT_DIR = "./";
+var DEFAULT_FILENAME = exports.DEFAULT_FILENAME = "{year}-{authors}-{title}-{filename}";
 var DEFAULT_CONFIG_INIT = exports.DEFAULT_CONFIG_INIT = {
     search: {}
 };
 var DEFAULT_CONFIG = exports.DEFAULT_CONFIG = {
     dir: DEFAULT_DIR,
+    filename: DEFAULT_FILENAME,
     search: {
         limit: ENTRY_LIMIT,
         open: true,

@@ -137,16 +137,21 @@ var set = function () {
 
 var list = function () {
     var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(query, options) {
-        var _options$indexPath3, indexPath, restOpts;
+        var _options$indexPath3, indexPath, restOpts, index;
 
         return _regenerator2.default.wrap(function _callee3$(_context3) {
             while (1) {
                 switch (_context3.prev = _context3.next) {
                     case 0:
                         _options$indexPath3 = options.indexPath, indexPath = _options$indexPath3 === undefined ? _utils.INDEX_PATH : _options$indexPath3, restOpts = (0, _objectWithoutProperties3.default)(options, ["indexPath"]);
+                        index = (0, _utils.load_index)(indexPath);
+
+                        console.log((index.papers || []).map(function (p) {
+                            return p.year + " - " + chalk.green(p.authors) + " - " + p.title;
+                        }));
                         return _context3.abrupt("return", process.exit());
 
-                    case 2:
+                    case 4:
                     case "end":
                         return _context3.stop();
                 }
@@ -197,7 +202,7 @@ var search = function () {
             };
         }();
 
-        var index, dir, search, sourceName, search_page, search_url, search_prompt, spinner, results, _ref5, choices, selection, prompt, exit, tasks;
+        var index_config, dir, search, sourceName, search_page, search_url, search_prompt, spinner, results, _ref5, choices, selection, prompt, exit, tasks;
 
         return _regenerator2.default.wrap(function _callee6$(_context6) {
             while (1) {
@@ -211,19 +216,23 @@ var search = function () {
                             process.exit();
                         };
 
-                        index = (0, _utils.load_index)(options.indexPath);
-                        dir = index.dir || _utils.DEFAULT_CONFIG.dir;
+                        index_config = (0, _utils.load_index)(options.indexPath);
 
-                        options = (0, _extends3.default)({}, _utils.DEFAULT_CONFIG.search, index.search || {}, options);
+                        index_config = (0, _extends3.default)({}, _utils.DEFAULT_CONFIG, index_config, {
+                            search: (0, _extends3.default)({}, _utils.DEFAULT_CONFIG.search, index_config.search, options)
+                        });
+                        dir = index_config.dir;
+
+                        options = index_config.search;
 
                         if (options.limit) {
-                            _context6.next = 6;
+                            _context6.next = 7;
                             break;
                         }
 
                         return _context6.abrupt("return", console.error(chalk.red('OPTION_ERROR: options.limit is not specified or 0')));
 
-                    case 6:
+                    case 7:
                         // add options.backend
                         search = backends.SOURCES[options.source];
                         sourceName = backends.NAMES[options.source];
@@ -231,13 +240,13 @@ var search = function () {
                         search_url = backends.SEARCH_URL[options.source];
 
                         if (!(!search && typeof search === "function")) {
-                            _context6.next = 12;
+                            _context6.next = 13;
                             break;
                         }
 
                         return _context6.abrupt("return", console.error(chalk.red("OPTION_ERROR: options.source is not in the white list " + backends.SOURCES)));
 
-                    case 12:
+                    case 13:
                         search_prompt = {
                             message: "Results by " + sourceName,
                             type: "checkbox",
@@ -252,43 +261,43 @@ var search = function () {
 
                         spinner = ora("searching " + chalk.yellow(sourceName) + " for " + chalk.green(query.join(' '))).start();
                         results = void 0;
-                        _context6.prev = 17;
-                        _context6.next = 20;
+                        _context6.prev = 18;
+                        _context6.next = 21;
                         return search(query, options.limit);
 
-                    case 20:
+                    case 21:
                         _ref5 = _context6.sent;
                         results = _ref5.results;
-                        _context6.next = 29;
+                        _context6.next = 30;
                         break;
 
-                    case 24:
-                        _context6.prev = 24;
-                        _context6.t0 = _context6["catch"](17);
+                    case 25:
+                        _context6.prev = 25;
+                        _context6.t0 = _context6["catch"](18);
 
                         spinner.stop();
                         if (_context6.t0.code === _googleScholar.ERR_BOT) console.error(chalk.green("\nYou are detected as a bot\n"), _context6.t0);else console.error(chalk.red('\nsomething went wrong during search\n'), _context6.t0);
                         process.exit();
 
-                    case 29:
+                    case 30:
                         spinner.stop();
                         choices = results.map(_utils.simple).slice(0, options.limit);
                         selection = void 0, prompt = void 0;
 
-                    case 32:
+                    case 33:
                         if (!true) {
-                            _context6.next = 42;
+                            _context6.next = 43;
                             break;
                         }
 
-                        _context6.next = 35;
+                        _context6.next = 36;
                         return show_list();
 
-                    case 35:
+                    case 36:
                         spinner = ora();
                         tasks = selection.map(function () {
                             var _ref8 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(title, index) {
-                                var selected, url, fn;
+                                var selected, url, authors, fn;
                                 return _regenerator2.default.wrap(function _callee5$(_context5) {
                                     while (1) {
                                         switch (_context5.prev = _context5.next) {
@@ -300,54 +309,62 @@ var search = function () {
                                                     spinner.fail("url " + (0, _stringify2.default)(selected.url) + " and pdfUrl \"" + (0, _stringify2.default)(selected.pdfUrl) + "\" \n                    are not resolving correctly. Please feel free to email " + package_config.author);
                                                     process.exit();
                                                 }
-                                                fn = (0, _path.join)(dir, (0, _utils.url2fn)(url));
-                                                _context5.prev = 4;
+                                                // make this configurable
+                                                authors = selected.authors.map(function (a) {
+                                                    return a.name;
+                                                });
+                                                fn = (0, _path.join)(dir, index_config.filename.format((0, _extends3.default)({}, selected, {
+                                                    authors: authors.join(', '),
+                                                    firstAuthor: authors[0] || "NA",
+                                                    filename: (0, _utils.url2fn)(url)
+                                                })));
+                                                _context5.prev = 5;
 
                                                 if (!fs.existsSync(fn)) {
-                                                    _context5.next = 9;
+                                                    _context5.next = 10;
                                                     break;
                                                 }
 
                                                 spinner.warn("the file " + fn + " already exists! Skipping the download.");
-                                                _context5.next = 13;
+                                                _context5.next = 14;
                                                 break;
 
-                                            case 9:
+                                            case 10:
                                                 // done: download link resolution:
                                                 // todo: use unified single spinner for the entire parallel task stack.
                                                 spinner.start("downloading " + url + " to " + fn);
-                                                _context5.next = 12;
+                                                _context5.next = 13;
                                                 return (0, _utils.curl)(url, fn);
 
-                                            case 12:
+                                            case 13:
                                                 spinner.succeed("saved at " + fn + "; " + chalk.red('If corrupted, go to:') + " " + url);
 
-                                            case 13:
+                                            case 14:
                                                 if (!options.open) {
-                                                    _context5.next = 18;
+                                                    _context5.next = 19;
                                                     break;
                                                 }
 
                                                 spinner.start(chalk.green("opening the pdf file " + fn));
                                                 // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
-                                                _context5.next = 17;
+                                                _context5.next = 18;
                                                 return (0, _utils.sleep)(200);
 
-                                            case 17:
+                                            case 18:
                                                 open(fn);
 
-                                            case 18:
-                                                _context5.next = 24;
+                                            case 19:
+                                                _context5.next = 25;
                                                 break;
 
-                                            case 20:
-                                                _context5.prev = 20;
-                                                _context5.t0 = _context5["catch"](4);
+                                            case 21:
+                                                _context5.prev = 21;
+                                                _context5.t0 = _context5["catch"](5);
 
                                                 spinner.fail("failed to save " + fn + " due to");
                                                 console.log(_context5.t0);
 
-                                            case 24:
+                                            case 25:
                                                 try {
                                                     spinner.start("attaching bib entry");
                                                     selected.files = [].concat((0, _toConsumableArray3.default)(selected.files || []), [fn]);
@@ -358,32 +375,32 @@ var search = function () {
                                                     console.log(e, selected);
                                                 }
 
-                                            case 25:
+                                            case 26:
                                             case "end":
                                                 return _context5.stop();
                                         }
                                     }
-                                }, _callee5, this, [[4, 20]]);
+                                }, _callee5, this, [[5, 21]]);
                             }));
 
                             return function (_x9, _x10) {
                                 return _ref8.apply(this, arguments);
                             };
                         }());
-                        _context6.next = 39;
+                        _context6.next = 40;
                         return _promise2.default.all(tasks);
 
-                    case 39:
+                    case 40:
                         spinner.stop();
-                        _context6.next = 32;
+                        _context6.next = 33;
                         break;
 
-                    case 42:
+                    case 43:
                     case "end":
                         return _context6.stop();
                 }
             }
-        }, _callee6, this, [[17, 24]]);
+        }, _callee6, this, [[18, 25]]);
     }));
 
     return function search(_x7, _x8) {
@@ -418,6 +435,7 @@ var _require = require('rxjs'),
     Subject = _require.Subject;
 
 var open = require('opn');
+require('string.format');
 
 // take a look at: https://scotch.io/tutorials/build-an-interactive-command-line-application-with-nodejs
 
