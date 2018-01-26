@@ -18,6 +18,7 @@ const package_config = require('../package.json');
 const inquirer = require('inquirer');
 const {Subject} = require('rxjs');
 const open = require('opn');
+require('string.format');
 
 // take a look at: https://scotch.io/tutorials/build-an-interactive-command-line-application-with-nodejs
 
@@ -86,13 +87,19 @@ async function set(key, value, options) {
 
 async function list(query, options) {
     const {indexPath = INDEX_PATH, ...restOpts} = options;
+    const index = load_index(indexPath);
+    console.log((index.papers || []).map(p => `${p.year} - ${chalk.green(p.authors)} - ${p.title}`));
     return process.exit()
 }
 
 async function search(query, options) {
-    const index = load_index(options.indexPath);
-    const dir = index.dir || DEFAULT_CONFIG.dir;
-    options = {...DEFAULT_CONFIG.search, ...(index.search || {}), ...options};
+    let index_config = load_index(options.indexPath);
+    index_config = {
+        ...DEFAULT_CONFIG, ...index_config,
+        search: {...DEFAULT_CONFIG.search, ...index_config.search, ...options}
+    };
+    const dir = index_config.dir;
+    options = index_config.search;
     if (!options.limit)
         return console.error(chalk.red('OPTION_ERROR: options.limit is not specified or 0'));
     // add options.backend
@@ -163,7 +170,15 @@ async function search(query, options) {
                     are not resolving correctly. Please feel free to email ${package_config.author}`);
                 process.exit();
             }
-            const fn = pathJoin(dir, url2fn(url));
+            // make this configurable
+            const authors = selected.authors.map(a => a.name);
+
+            const fn = pathJoin(dir, index_config.filename.format({
+                ...selected,
+                authors: authors.join(', '),
+                firstAuthor: (authors[0] || "NA"),
+                filename: url2fn(url)
+            }));
             try {
                 if (fs.existsSync(fn)) {
                     spinner.warn(`the file ${fn} already exists! Skipping the download.`);

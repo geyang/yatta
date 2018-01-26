@@ -69,7 +69,7 @@ function scholarResultsCallback(resolve, reject) {
                 let authorsString = $(r).find('.gs_ri .gs_a').text();
                 let [authors, journalYear, publisher] = authorsString.split(/\s+-\s+/).map(s => s.trim());
                 let year = parseInt(journalYear.split(/\s*,\s+/).slice(-1)[0]);
-                authors = authors.split(/\s*,\s+/).filter(a => a.trim()).filter(a => a !== "…").map(a => ({name: a}));
+                authors = authors.split(/\s*,\s+/).map(a => a.replace("…", " ").trim()).filter(a => a !== "…").map(a => ({name: a}));
                 let description = $(r).find('.gs_ri .gs_rs').text();
                 let footerLinks = $(r).find('.gs_ri .gs_fl a');
                 let citedCount = 0;
