@@ -88,6 +88,10 @@ async function set(key, value, options) {
 }
 
 async function list(options) {
+    // todo: <rename> change file name
+    // todo: <meta> add title and authors
+    // todo: <link> with bib
+    // todo: model should include: bib:..., original filename, pdf content.
     const {indexPath = INDEX_PATH, ...restOpts} = options;
     const index_config = load_index(indexPath);
     const papers = index_config.papers || DEFAULT_CONFIG.papers;
