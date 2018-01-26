@@ -112,9 +112,9 @@ async function list(options) {
 
     const search_prompt = {
         message: `local files`,
-        type: "checkbox",
+        type: "list",
         find: true,
-        default: 0,
+        default: 5,
         pageSize: choices.length * 2 // when this is less than the real screen estate, it gets very ugly.
         // todo: measure the actual height of the screen
     };
@@ -144,10 +144,10 @@ async function list(options) {
 
     while (true) {
         const selection = await show_list();
-        selection.forEach(title => {
-            const filename = files[choices.indexOf(title)];
-            if (filename) open(filename);
-        })
+        const selection_index = choices.indexOf(selection);
+        search_prompt.default = selection_index;
+        const filename = files[selection_index];
+        if (filename) open(filename);
     }
 
     // return process.exit()

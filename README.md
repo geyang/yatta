@@ -46,7 +46,32 @@ yatta set search.limit <an integer>  # this sets the number of return entries to
 yatta set search.open <true or false>  # this sets the behavior after download: open the pdf up or not?
 ```
 
+## How to find help:
 
-![./figures/help.png](./figures/help.png)
+There are two ways to get help: 
+1. take a look at the help page of the command. You can do this by putting in:
 
+    ```bash
+    yatta --help
+    # or
+    yatta <command> --help
+    ```
+    ![./figures/help.png](./figures/help.png)
+    
+2. Alternatively, a quick look at the source would also be helpful: [./src/yatta.js](./src/yatta.js).
+
+## TODOs and Plans
+
+1. [ ] save a copy of PDF and `yatta.yml` index under your home directory `~/.yatta`.
+2. [ ] sym-link or hard-link files from `~/.yatta/papers/` to your current directory.
+3. [ ] Add search from `~/.yatta/yatta.ml` to the results of `yatta search`.
+4. [ ] list `pdfs` in local directory
+5. [ ] list `pdfs` in current index
+6. [ ] add support for multiple options in current folder: 
+    - download appropriate bib info for local file (arxiv id; pdf title; )
+    - save linked yatta bib in global bib
+    - open (from index, from local)
+    - edit bib
+    - edit filename
+    - delete bib
 
