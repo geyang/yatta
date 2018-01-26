@@ -9,6 +9,7 @@ import * as backends from "./backends";
 import {ERR_BOT} from "./backends/google-scholar";
 import {join as pathJoin} from "path";
 import {pdfResolver} from "./resolver";
+import {readPdf, listFiles} from "./modules/pdf";
 
 const ora = require("ora");
 const fs = require("fs-extra");
@@ -85,10 +86,20 @@ async function set(key, value, options) {
     process.exit();
 }
 
-async function list(query, options) {
+async function list(options) {
     const {indexPath = INDEX_PATH, ...restOpts} = options;
-    const index = load_index(indexPath);
-    console.log((index.papers || []).map(p => `${p.year} - ${chalk.green(p.authors)} - ${p.title}`));
+    const index_config = load_index(indexPath);
+    const config = {...DEFAULT_CONFIG, ...index_config, ...options};
+    console.log((index_config.papers || []).map(p => `${p.year}-${p.authors.map(a => chalk.green(a.name)).join(', ')}-${p.title}`).join('\n'));
+    // const files = listFiles(config.dir).filter(f => f.match(/\.pdf$/));
+    // const pdfs = await Promise.all(files.map(async function (f) {
+    //     try {
+    //         return await readPdf(f)
+    //     } catch (e) {
+    //         console.log(e);
+    //     }
+    // }));
+    // console.log(pdfs.map(d=>d.meta.title).join('\n'));
     return process.exit()
 }
 
@@ -222,9 +233,12 @@ program
 program
     .command('init')
     .option('--index-path <index path>', "path for the yatta.yml index file", INDEX_PATH)
-    // we DO NOT offer config option to keep it simple
-    // .option('-O --open', "open the downloaded pdf file")
     .action(init);
+
+program
+    .command('list')
+    .option('--index-path <index path>', "path for the yatta.yml index file", INDEX_PATH)
+    .action(list);
 
 program
     .command('set [key.path] [value]')

@@ -3,10 +3,10 @@ import chalk from "chalk";
 import request from "request";
 import {parse as urlParse} from "url";
 import path from "path";
-import http from "http";
 import yaml from "js-yaml";
 import fs from "fs-extra";
 import * as backends from "./backends";
+import {PDFJS} from "pdfjs-dist";
 
 export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
