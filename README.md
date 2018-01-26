@@ -60,8 +60,17 @@ There are two ways to get help:
     
 2. Alternatively, a quick look at the source would also be helpful: [./src/yatta.js](./src/yatta.js).
 
-## TODOs and Plans
+## Plans
 
+stuff to think about:
+- managing papers is about organizing them. Make it easy to:
+    - search for papers
+    - organize papers into folders?
+    - remove useless papers?
+I think if you do search well, everything else won't matter that much. So we could forget about `managing` as long it is easy for other devices to view the papers.
+**limiter**: don't think of managing papers. Just put them under a folder for now. But make is easy to search under current scope.
+
+### Todos
 0. [ ] Work through the UX, make sure things make sense.
 1. [ ] save a copy of PDF and `yatta.yml` index under your home directory `~/.yatta`.
 2. [ ] sym-link or hard-link files from `~/.yatta/papers/` to your current directory.
