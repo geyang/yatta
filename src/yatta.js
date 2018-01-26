@@ -2,7 +2,7 @@
 
 import {
     curl, DEFAULT_CONFIG, dot, dot_update, dump_index, ENTRY_LIMIT, INDEX_PATH,
-    init_index, load_index, simple, update_index, url2fn
+    init_index, load_index, update_index, url2fn
 } from "./utils";
 import {sleep} from "./utils";
 import * as backends from "./backends";
@@ -10,6 +10,7 @@ import {ERR_BOT} from "./backends/google-scholar";
 import {join as pathJoin} from "path";
 import {pdfResolver} from "./resolver";
 import {readPdf, listFiles} from "./modules/pdf";
+import {full, simple} from "./formatters";
 
 const ora = require("ora");
 const fs = require("fs-extra");
@@ -89,17 +90,18 @@ async function set(key, value, options) {
 async function list(options) {
     const {indexPath = INDEX_PATH, ...restOpts} = options;
     const index_config = load_index(indexPath);
-    const config = {...DEFAULT_CONFIG, ...index_config, ...options};
-    console.log((index_config.papers || []).map(p => `${p.year}-${p.authors.map(a => chalk.green(a.name)).join(', ')}-${p.title}`).join('\n'));
-    // const files = listFiles(config.dir).filter(f => f.match(/\.pdf$/));
-    // const pdfs = await Promise.all(files.map(async function (f) {
-    //     try {
-    //         return await readPdf(f)
-    //     } catch (e) {
-    //         console.log(e);
-    //     }
-    // }));
-    // console.log(pdfs.map(d=>d.meta.title).join('\n'));
+    const papers = index_config.papers || DEFAULT_CONFIG.papers;
+    const dir = index_config.dir || DEFAULT_CONFIG.dir;
+    papers.map(p => ({...p, authors: p.authors.map(a => a.name)})).map(full).join('\n');
+    const files = listFiles(dir).filter(f => f.match(/\.pdf$/));
+    const pdfs = await Promise.all(files.map(async function (f) {
+        try {
+            return await readPdf(f)
+        } catch (e) {
+            console.log(e);
+        }
+    }));
+    console.log(pdfs.filter(d => !!d).map(d => ({...d, ...d.meta})).map(full).join('\n'));
     return process.exit()
 }
 
@@ -124,6 +126,7 @@ async function search(query, options) {
     const search_prompt = {
         message: `Results by ${sourceName}`,
         type: "checkbox",
+        find: true,
         default: 0,
         pageSize: options.limit * 2 // when this is less than the real screen estate, it gets very ugly.
         // todo: measure the actual height of the screen

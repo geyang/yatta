@@ -36,19 +36,6 @@ export function dot_update(obj, path, value) {
     else return ({...obj, [key]: dot_update(v, path.slice(1), value)});
 }
 
-export function $aus(authors) {
-    const first_author = authors[0];
-    if (authors.length > 1) {
-        return chalk.green(first_author.name) + chalk.gray(", et.al.")
-    } else {
-        return chalk.green(first_author.name)
-    }
-}
-
-export function simple({year, title, authors, pdf}, i) {
-    return `${i}. ${chalk.gray(year)} ${chalk.green($aus(authors))}, ${title}`
-}
-
 export function url2fn(url) {
     const parsed = urlParse(url);
     let fn = path.basename(parsed.pathname).trim();
@@ -86,7 +73,8 @@ export const DEFAULT_CONFIG = {
         limit: ENTRY_LIMIT,
         open: true,
         source: backends.ARXIV
-    }
+    },
+    papers: []
 };
 
 export function load_index(indexPath) {
