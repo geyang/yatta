@@ -40,8 +40,6 @@ exports.sleep = sleep;
 exports.isArray = isArray;
 exports.dot = dot;
 exports.dot_update = dot_update;
-exports.$aus = $aus;
-exports.simple = simple;
 exports.url2fn = url2fn;
 exports.curl = curl;
 exports.load_index = load_index;
@@ -109,24 +107,6 @@ function dot_update(obj, path, value) {
     if (path.length === 1) return (0, _extends5.default)({}, obj, (0, _defineProperty3.default)({}, key, value));else return (0, _extends5.default)({}, obj, (0, _defineProperty3.default)({}, key, dot_update(v, path.slice(1), value)));
 }
 
-function $aus(authors) {
-    var first_author = authors[0];
-    if (authors.length > 1) {
-        return _chalk2.default.green(first_author.name) + _chalk2.default.gray(", et.al.");
-    } else {
-        return _chalk2.default.green(first_author.name);
-    }
-}
-
-function simple(_ref, i) {
-    var year = _ref.year,
-        title = _ref.title,
-        authors = _ref.authors,
-        pdf = _ref.pdf;
-
-    return i + ". " + _chalk2.default.gray(year) + " " + _chalk2.default.green($aus(authors)) + ", " + title;
-}
-
 function url2fn(url) {
     var parsed = (0, _url.parse)(url);
     var fn = _path2.default.basename(parsed.pathname).trim();
@@ -165,7 +145,8 @@ var DEFAULT_CONFIG = exports.DEFAULT_CONFIG = {
         limit: ENTRY_LIMIT,
         open: true,
         source: backends.ARXIV
-    }
+    },
+    papers: []
 };
 
 function load_index(indexPath) {

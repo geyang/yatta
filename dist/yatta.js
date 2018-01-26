@@ -5,10 +5,6 @@ var _keys = require("babel-runtime/core-js/object/keys");
 
 var _keys2 = _interopRequireDefault(_keys);
 
-var _promise = require("babel-runtime/core-js/promise");
-
-var _promise2 = _interopRequireDefault(_promise);
-
 var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
 
 var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
@@ -16,6 +12,10 @@ var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 var _stringify = require("babel-runtime/core-js/json/stringify");
 
 var _stringify2 = _interopRequireDefault(_stringify);
+
+var _promise = require("babel-runtime/core-js/promise");
+
+var _promise2 = _interopRequireDefault(_promise);
 
 var _extends2 = require("babel-runtime/helpers/extends");
 
@@ -136,39 +136,75 @@ var set = function () {
 }();
 
 var list = function () {
-    var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(options) {
-        var _options$indexPath3, indexPath, restOpts, index_config, config;
+    var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(options) {
+        var _options$indexPath3, indexPath, restOpts, index_config, papers, dir, files, pdfs;
 
-        return _regenerator2.default.wrap(function _callee3$(_context3) {
+        return _regenerator2.default.wrap(function _callee4$(_context4) {
             while (1) {
-                switch (_context3.prev = _context3.next) {
+                switch (_context4.prev = _context4.next) {
                     case 0:
                         _options$indexPath3 = options.indexPath, indexPath = _options$indexPath3 === undefined ? _utils.INDEX_PATH : _options$indexPath3, restOpts = (0, _objectWithoutProperties3.default)(options, ["indexPath"]);
                         index_config = (0, _utils.load_index)(indexPath);
-                        config = (0, _extends3.default)({}, _utils.DEFAULT_CONFIG, index_config, options);
+                        papers = index_config.papers || _utils.DEFAULT_CONFIG.papers;
+                        dir = index_config.dir || _utils.DEFAULT_CONFIG.dir;
 
-                        console.log((index_config.papers || []).map(function (p) {
-                            return p.year + "-" + p.authors.map(function (a) {
-                                return chalk.green(a.name);
-                            }).join(', ') + "-" + p.title;
-                        }).join('\n'));
-                        // const files = listFiles(config.dir).filter(f => f.match(/\.pdf$/));
-                        // const pdfs = await Promise.all(files.map(async function (f) {
-                        //     try {
-                        //         return await readPdf(f)
-                        //     } catch (e) {
-                        //         console.log(e);
-                        //     }
-                        // }));
-                        // console.log(pdfs.map(d=>d.meta.title).join('\n'));
-                        return _context3.abrupt("return", process.exit());
+                        papers.map(function (p) {
+                            return (0, _extends3.default)({}, p, { authors: p.authors.map(function (a) {
+                                    return a.name;
+                                }) });
+                        }).map(_formatters.full).join('\n');
+                        files = (0, _pdf.listFiles)(dir).filter(function (f) {
+                            return f.match(/\.pdf$/);
+                        });
+                        _context4.next = 8;
+                        return _promise2.default.all(files.map(function () {
+                            var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(f) {
+                                return _regenerator2.default.wrap(function _callee3$(_context3) {
+                                    while (1) {
+                                        switch (_context3.prev = _context3.next) {
+                                            case 0:
+                                                _context3.prev = 0;
+                                                _context3.next = 3;
+                                                return (0, _pdf.readPdf)(f);
 
-                    case 5:
+                                            case 3:
+                                                return _context3.abrupt("return", _context3.sent);
+
+                                            case 6:
+                                                _context3.prev = 6;
+                                                _context3.t0 = _context3["catch"](0);
+
+                                                console.log(_context3.t0);
+
+                                            case 9:
+                                            case "end":
+                                                return _context3.stop();
+                                        }
+                                    }
+                                }, _callee3, this, [[0, 6]]);
+                            }));
+
+                            return function (_x6) {
+                                return _ref4.apply(this, arguments);
+                            };
+                        }()));
+
+                    case 8:
+                        pdfs = _context4.sent;
+
+                        console.log(pdfs.filter(function (d) {
+                            return !!d;
+                        }).map(function (d) {
+                            return (0, _extends3.default)({}, d, d.meta);
+                        }).map(_formatters.full).join('\n'));
+                        return _context4.abrupt("return", process.exit());
+
+                    case 11:
                     case "end":
-                        return _context3.stop();
+                        return _context4.stop();
                 }
             }
-        }, _callee3, this);
+        }, _callee4, this);
     }));
 
     return function list(_x5) {
@@ -177,14 +213,14 @@ var list = function () {
 }();
 
 var search = function () {
-    var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee6(query, options) {
+    var _ref5 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee7(query, options) {
         var show_list = function () {
-            var _ref6 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4() {
-                var _ref7;
+            var _ref7 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5() {
+                var _ref8;
 
-                return _regenerator2.default.wrap(function _callee4$(_context4) {
+                return _regenerator2.default.wrap(function _callee5$(_context5) {
                     while (1) {
-                        switch (_context4.prev = _context4.next) {
+                        switch (_context5.prev = _context5.next) {
                             case 0:
                                 prompt = inquirer.prompt((0, _extends3.default)({}, search_prompt, {
                                     name: "selection",
@@ -192,33 +228,33 @@ var search = function () {
                                 }));
 
                                 process.stdin.on('keypress', exit);
-                                _context4.next = 4;
+                                _context5.next = 4;
                                 return prompt;
 
                             case 4:
-                                _ref7 = _context4.sent;
-                                selection = _ref7.selection;
+                                _ref8 = _context5.sent;
+                                selection = _ref8.selection;
 
                                 process.stdin.removeListener('keypress', exit);
 
                             case 7:
                             case "end":
-                                return _context4.stop();
+                                return _context5.stop();
                         }
                     }
-                }, _callee4, this);
+                }, _callee5, this);
             }));
 
             return function show_list() {
-                return _ref6.apply(this, arguments);
+                return _ref7.apply(this, arguments);
             };
         }();
 
-        var index_config, dir, search, sourceName, search_page, search_url, search_prompt, spinner, results, _ref5, choices, selection, prompt, exit, tasks;
+        var index_config, dir, search, sourceName, search_page, search_url, search_prompt, spinner, results, _ref6, choices, selection, prompt, exit, tasks;
 
-        return _regenerator2.default.wrap(function _callee6$(_context6) {
+        return _regenerator2.default.wrap(function _callee7$(_context7) {
             while (1) {
-                switch (_context6.prev = _context6.next) {
+                switch (_context7.prev = _context7.next) {
                     case 0:
                         exit = function exit(ch, key) {
                             if (key && EXIT_KEYS.indexOf(key.name) === -1) return;
@@ -238,11 +274,11 @@ var search = function () {
                         options = index_config.search;
 
                         if (options.limit) {
-                            _context6.next = 7;
+                            _context7.next = 7;
                             break;
                         }
 
-                        return _context6.abrupt("return", console.error(chalk.red('OPTION_ERROR: options.limit is not specified or 0')));
+                        return _context7.abrupt("return", console.error(chalk.red('OPTION_ERROR: options.limit is not specified or 0')));
 
                     case 7:
                         // add options.backend
@@ -252,16 +288,17 @@ var search = function () {
                         search_url = backends.SEARCH_URL[options.source];
 
                         if (!(!search && typeof search === "function")) {
-                            _context6.next = 13;
+                            _context7.next = 13;
                             break;
                         }
 
-                        return _context6.abrupt("return", console.error(chalk.red("OPTION_ERROR: options.source is not in the white list " + backends.SOURCES)));
+                        return _context7.abrupt("return", console.error(chalk.red("OPTION_ERROR: options.source is not in the white list " + backends.SOURCES)));
 
                     case 13:
                         search_prompt = {
                             message: "Results by " + sourceName,
                             type: "checkbox",
+                            find: true,
                             default: 0,
                             pageSize: options.limit * 2 // when this is less than the real screen estate, it gets very ugly.
                             // todo: measure the actual height of the screen
@@ -273,46 +310,46 @@ var search = function () {
 
                         spinner = ora("searching " + chalk.yellow(sourceName) + " for " + chalk.green(query.join(' '))).start();
                         results = void 0;
-                        _context6.prev = 18;
-                        _context6.next = 21;
+                        _context7.prev = 18;
+                        _context7.next = 21;
                         return search(query, options.limit);
 
                     case 21:
-                        _ref5 = _context6.sent;
-                        results = _ref5.results;
-                        _context6.next = 30;
+                        _ref6 = _context7.sent;
+                        results = _ref6.results;
+                        _context7.next = 30;
                         break;
 
                     case 25:
-                        _context6.prev = 25;
-                        _context6.t0 = _context6["catch"](18);
+                        _context7.prev = 25;
+                        _context7.t0 = _context7["catch"](18);
 
                         spinner.stop();
-                        if (_context6.t0.code === _googleScholar.ERR_BOT) console.error(chalk.green("\nYou are detected as a bot\n"), _context6.t0);else console.error(chalk.red('\nsomething went wrong during search\n'), _context6.t0);
+                        if (_context7.t0.code === _googleScholar.ERR_BOT) console.error(chalk.green("\nYou are detected as a bot\n"), _context7.t0);else console.error(chalk.red('\nsomething went wrong during search\n'), _context7.t0);
                         process.exit();
 
                     case 30:
                         spinner.stop();
-                        choices = results.map(_utils.simple).slice(0, options.limit);
+                        choices = results.map(_formatters.simple).slice(0, options.limit);
                         selection = void 0, prompt = void 0;
 
                     case 33:
                         if (!true) {
-                            _context6.next = 43;
+                            _context7.next = 43;
                             break;
                         }
 
-                        _context6.next = 36;
+                        _context7.next = 36;
                         return show_list();
 
                     case 36:
                         spinner = ora();
                         tasks = selection.map(function () {
-                            var _ref8 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(title, index) {
+                            var _ref9 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee6(title, index) {
                                 var selected, url, authors, fn;
-                                return _regenerator2.default.wrap(function _callee5$(_context5) {
+                                return _regenerator2.default.wrap(function _callee6$(_context6) {
                                     while (1) {
-                                        switch (_context5.prev = _context5.next) {
+                                        switch (_context6.prev = _context6.next) {
                                             case 0:
                                                 selected = results[choices.indexOf(title)];
                                                 url = (0, _resolver.pdfResolver)(selected.url, selected.pdfUrl);
@@ -330,22 +367,22 @@ var search = function () {
                                                     firstAuthor: authors[0] || "NA",
                                                     filename: (0, _utils.url2fn)(url)
                                                 })));
-                                                _context5.prev = 5;
+                                                _context6.prev = 5;
 
                                                 if (!fs.existsSync(fn)) {
-                                                    _context5.next = 10;
+                                                    _context6.next = 10;
                                                     break;
                                                 }
 
                                                 spinner.warn("the file " + fn + " already exists! Skipping the download.");
-                                                _context5.next = 14;
+                                                _context6.next = 14;
                                                 break;
 
                                             case 10:
                                                 // done: download link resolution:
                                                 // todo: use unified single spinner for the entire parallel task stack.
                                                 spinner.start("downloading " + url + " to " + fn);
-                                                _context5.next = 13;
+                                                _context6.next = 13;
                                                 return (0, _utils.curl)(url, fn);
 
                                             case 13:
@@ -353,28 +390,28 @@ var search = function () {
 
                                             case 14:
                                                 if (!options.open) {
-                                                    _context5.next = 19;
+                                                    _context6.next = 19;
                                                     break;
                                                 }
 
                                                 spinner.start(chalk.green("opening the pdf file " + fn));
                                                 // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
-                                                _context5.next = 18;
+                                                _context6.next = 18;
                                                 return (0, _utils.sleep)(200);
 
                                             case 18:
                                                 open(fn);
 
                                             case 19:
-                                                _context5.next = 25;
+                                                _context6.next = 25;
                                                 break;
 
                                             case 21:
-                                                _context5.prev = 21;
-                                                _context5.t0 = _context5["catch"](5);
+                                                _context6.prev = 21;
+                                                _context6.t0 = _context6["catch"](5);
 
                                                 spinner.fail("failed to save " + fn + " due to");
-                                                console.log(_context5.t0);
+                                                console.log(_context6.t0);
 
                                             case 25:
                                                 try {
@@ -389,34 +426,34 @@ var search = function () {
 
                                             case 26:
                                             case "end":
-                                                return _context5.stop();
+                                                return _context6.stop();
                                         }
                                     }
-                                }, _callee5, this, [[5, 21]]);
+                                }, _callee6, this, [[5, 21]]);
                             }));
 
-                            return function (_x8, _x9) {
-                                return _ref8.apply(this, arguments);
+                            return function (_x9, _x10) {
+                                return _ref9.apply(this, arguments);
                             };
                         }());
-                        _context6.next = 40;
+                        _context7.next = 40;
                         return _promise2.default.all(tasks);
 
                     case 40:
                         spinner.stop();
-                        _context6.next = 33;
+                        _context7.next = 33;
                         break;
 
                     case 43:
                     case "end":
-                        return _context6.stop();
+                        return _context7.stop();
                 }
             }
-        }, _callee6, this, [[18, 25]]);
+        }, _callee7, this, [[18, 25]]);
     }));
 
-    return function search(_x6, _x7) {
-        return _ref4.apply(this, arguments);
+    return function search(_x7, _x8) {
+        return _ref5.apply(this, arguments);
     };
 }();
 
@@ -433,6 +470,8 @@ var _path = require("path");
 var _resolver = require("./resolver");
 
 var _pdf = require("./modules/pdf");
+
+var _formatters = require("./formatters");
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
