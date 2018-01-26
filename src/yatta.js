@@ -88,6 +88,7 @@ async function set(key, value, options) {
 }
 
 async function list(options) {
+    // todo: add prompt to open current files
     // todo: <rename> change file name
     // todo: <meta> add title and authors
     // todo: <link> with bib
@@ -98,6 +99,7 @@ async function list(options) {
     const dir = index_config.dir || DEFAULT_CONFIG.dir;
     papers.map(p => ({...p, authors: p.authors.map(a => a.name)})).map(full).join('\n');
     const files = listFiles(dir).filter(f => f.match(/\.pdf$/));
+    const spinner = ora('looking through your files...').start();
     const pdfs = await Promise.all(files.map(async function (f) {
         try {
             return await readPdf(f)
@@ -105,8 +107,50 @@ async function list(options) {
             console.log(e);
         }
     }));
-    console.log(pdfs.filter(d => !!d).map(d => ({...d, ...d.meta})).map(full).join('\n'));
-    return process.exit()
+    const choices = pdfs.filter(d => !!d).map(d => ({...d, ...d.meta})).map(full);
+    spinner.succeed();
+
+    const search_prompt = {
+        message: `local files`,
+        type: "checkbox",
+        find: true,
+        default: 0,
+        pageSize: choices.length * 2 // when this is less than the real screen estate, it gets very ugly.
+        // todo: measure the actual height of the screen
+    };
+
+    let prompt;
+
+    function exit(ch, key) {
+        if (key && EXIT_KEYS.indexOf(key.name) === -1) return;
+        prompt.ui.close();
+        console.log(chalk.green(`\nExit on <${key.name}> key~`));
+        process.stdin.removeListener('keypress', exit);
+        process.exit();
+    }
+
+    async function show_list() {
+        prompt = inquirer.prompt({
+            ...search_prompt,
+            name: "selection",
+            choices
+        });
+
+        process.stdin.on('keypress', exit);
+        const {selection} = await prompt;
+        process.stdin.removeListener('keypress', exit);
+        return selection;
+    }
+
+    while (true) {
+        const selection = await show_list();
+        selection.forEach(title => {
+            const filename = files[choices.indexOf(title)];
+            if (filename) open(filename);
+        })
+    }
+
+    // return process.exit()
 }
 
 async function search(query, options) {
