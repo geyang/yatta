@@ -136,22 +136,34 @@ var set = function () {
 }();
 
 var list = function () {
-    var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(query, options) {
-        var _options$indexPath3, indexPath, restOpts, index;
+    var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(options) {
+        var _options$indexPath3, indexPath, restOpts, index_config, config;
 
         return _regenerator2.default.wrap(function _callee3$(_context3) {
             while (1) {
                 switch (_context3.prev = _context3.next) {
                     case 0:
                         _options$indexPath3 = options.indexPath, indexPath = _options$indexPath3 === undefined ? _utils.INDEX_PATH : _options$indexPath3, restOpts = (0, _objectWithoutProperties3.default)(options, ["indexPath"]);
-                        index = (0, _utils.load_index)(indexPath);
+                        index_config = (0, _utils.load_index)(indexPath);
+                        config = (0, _extends3.default)({}, _utils.DEFAULT_CONFIG, index_config, options);
 
-                        console.log((index.papers || []).map(function (p) {
-                            return p.year + " - " + chalk.green(p.authors) + " - " + p.title;
-                        }));
+                        console.log((index_config.papers || []).map(function (p) {
+                            return p.year + "-" + p.authors.map(function (a) {
+                                return chalk.green(a.name);
+                            }).join(', ') + "-" + p.title;
+                        }).join('\n'));
+                        // const files = listFiles(config.dir).filter(f => f.match(/\.pdf$/));
+                        // const pdfs = await Promise.all(files.map(async function (f) {
+                        //     try {
+                        //         return await readPdf(f)
+                        //     } catch (e) {
+                        //         console.log(e);
+                        //     }
+                        // }));
+                        // console.log(pdfs.map(d=>d.meta.title).join('\n'));
                         return _context3.abrupt("return", process.exit());
 
-                    case 4:
+                    case 5:
                     case "end":
                         return _context3.stop();
                 }
@@ -159,7 +171,7 @@ var list = function () {
         }, _callee3, this);
     }));
 
-    return function list(_x5, _x6) {
+    return function list(_x5) {
         return _ref3.apply(this, arguments);
     };
 }();
@@ -383,7 +395,7 @@ var search = function () {
                                 }, _callee5, this, [[5, 21]]);
                             }));
 
-                            return function (_x9, _x10) {
+                            return function (_x8, _x9) {
                                 return _ref8.apply(this, arguments);
                             };
                         }());
@@ -403,7 +415,7 @@ var search = function () {
         }, _callee6, this, [[18, 25]]);
     }));
 
-    return function search(_x7, _x8) {
+    return function search(_x6, _x7) {
         return _ref4.apply(this, arguments);
     };
 }();
@@ -419,6 +431,8 @@ var _googleScholar = require("./backends/google-scholar");
 var _path = require("path");
 
 var _resolver = require("./resolver");
+
+var _pdf = require("./modules/pdf");
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -444,10 +458,9 @@ var EXIT_KEYS = ["escape", "q"];
 
 program.version(package_config.version).option('-d, --directory', 'the directory to apply yatta. Default to ').option('-R, --recursive', 'flag to apply yatta recursively');
 
-program.command('init').option('--index-path <index path>', "path for the yatta.yml index file", _utils.INDEX_PATH)
-// we DO NOT offer config option to keep it simple
-// .option('-O --open', "open the downloaded pdf file")
-.action(init);
+program.command('init').option('--index-path <index path>', "path for the yatta.yml index file", _utils.INDEX_PATH).action(init);
+
+program.command('list').option('--index-path <index path>', "path for the yatta.yml index file", _utils.INDEX_PATH).action(list);
 
 program.command('set [key.path] [value]').description("modifies the configuration file, located at " + _utils.INDEX_PATH + " by default. Use dot separated path string as the key.").option('--index-path <index path>', "path for the " + _utils.INDEX_PATH + " index file", _utils.INDEX_PATH).action(set);
 

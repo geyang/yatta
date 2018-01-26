@@ -63,10 +63,6 @@ var _path = require("path");
 
 var _path2 = _interopRequireDefault(_path);
 
-var _http = require("http");
-
-var _http2 = _interopRequireDefault(_http);
-
 var _jsYaml = require("js-yaml");
 
 var _jsYaml2 = _interopRequireDefault(_jsYaml);
@@ -78,6 +74,8 @@ var _fsExtra2 = _interopRequireDefault(_fsExtra);
 var _backends = require("./backends");
 
 var backends = _interopRequireWildcard(_backends);
+
+var _pdfjsDist = require("pdfjs-dist");
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
