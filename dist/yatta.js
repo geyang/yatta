@@ -445,7 +445,9 @@ var search = function () {
                                                 authors = selected.authors.map(function (a) {
                                                     return a.name;
                                                 });
-                                                fn = (0, _path.join)(dir, index_config.filename.format((0, _extends3.default)({}, selected, {
+                                                fn = (0, _path.join)(dir, (0, _jsPyformat2.default)(index_config.filename, (0, _extends3.default)({}, selected, {
+                                                    YY: selected.year ? ("0" + selected.year % 100).slice(-2) : "",
+                                                    MM: selected.month ? ("0" + selected.month).slice(-2) : "",
                                                     authors: authors.join(', '),
                                                     firstAuthor: authors[0] || "NA",
                                                     filename: (0, _utils.url2fn)(url)
@@ -556,6 +558,10 @@ var _pdf = require("./modules/pdf");
 
 var _formatters = require("./formatters");
 
+var _jsPyformat = require("js-pyformat");
+
+var _jsPyformat2 = _interopRequireDefault(_jsPyformat);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -571,7 +577,8 @@ var _require = require('rxjs'),
     Subject = _require.Subject;
 
 var open = require('opn');
-require('string.format');
+
+// format.extend(String.prototype, {});
 
 // take a look at: https://scotch.io/tutorials/build-an-interactive-command-line-application-with-nodejs
 

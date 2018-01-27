@@ -72,7 +72,19 @@ stuff to think about:
 I think if you do search well, everything else won't matter that much. So we could forget about `managing` as long it is easy for other devices to view the papers.
 **limiter**: don't think of managing papers. Just put them under a folder for now. But make is easy to search under current scope.
 
-### Todos
+### TODOs
+
+- Alternative is to use `arXiv` as the ultimate index. No need to save index. Just move the papers around.
+- use `node-exiftool` to insert meta data into the PDF after download.
+- save bib data together with the file? delete file, move file, link file, copy file, show what folder file is in
+- save link to PDF in a global folder
+- has a command line tool that converts link to a hard link (alternatively just use hard link)
+
+stuff that actually need to be implemented:
+- `file.getBib()` need to be possible. Need a way to identify a single entry in the bib index (or 50 copies).
+- `yatta index` to generate a index of PDFs in current folder, or to generate the complete bibs.
+- `yatta bib -f blah-some-paper.pdf` finds a few suggestions for the bibliography entry for this paper.
+
 0. [ ] Work through the UX, make sure things make sense.
 1. [ ] save a copy of PDF and `yatta.yml` index under your home directory `~/.yatta`.
 2. [ ] sym-link or hard-link files from `~/.yatta/papers/` to your current directory.

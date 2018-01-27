@@ -20,7 +20,8 @@ const package_config = require('../package.json');
 const inquirer = require('inquirer');
 const {Subject} = require('rxjs');
 const open = require('opn');
-require('string.format');
+import format from 'js-pyformat';
+// format.extend(String.prototype, {});
 
 // take a look at: https://scotch.io/tutorials/build-an-interactive-command-line-application-with-nodejs
 
@@ -235,8 +236,10 @@ async function search(query, options) {
             // make this configurable
             const authors = selected.authors.map(a => a.name);
 
-            const fn = pathJoin(dir, index_config.filename.format({
+            const fn = pathJoin(dir, format(index_config.filename, {
                 ...selected,
+                YY: selected.year ? `0${selected.year % 100}`.slice(-2) : "",
+                MM: selected.month ? `0${selected.month}`.slice(-2) : "",
                 authors: authors.join(', '),
                 firstAuthor: (authors[0] || "NA"),
                 filename: url2fn(url)

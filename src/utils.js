@@ -62,7 +62,7 @@ export function curl(url, targetPath) {
 export const INDEX_PATH = "yatta.yml";
 export const ENTRY_LIMIT = 15;
 export const DEFAULT_DIR = "./";
-export const DEFAULT_FILENAME = "{year}-{authors}-{title}-{filename}";
+export const DEFAULT_FILENAME = "{YY}{MM}-{firstAuthor}-{title}-{filename}";
 export const DEFAULT_CONFIG_INIT = {
     search: {}
 };

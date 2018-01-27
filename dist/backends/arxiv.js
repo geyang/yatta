@@ -191,6 +191,7 @@ function coerceEntry(entry) {
         updated: new Date(entry.updated[0]),
         published: published,
         year: published.getFullYear(),
+        month: published.getMonth() + 1, // month is 0-11
         title: entry.title[0].trim().replace(/\s+/g, ' '),
         summary: entry.summary[0].trim().replace(/\s+/g, ' '),
         //todo: allow multiple links, do the same for Google Scholar. Reference standard bib from Mendeley.

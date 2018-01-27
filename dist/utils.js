@@ -134,7 +134,7 @@ function curl(url, targetPath) {
 var INDEX_PATH = exports.INDEX_PATH = "yatta.yml";
 var ENTRY_LIMIT = exports.ENTRY_LIMIT = 15;
 var DEFAULT_DIR = exports.DEFAULT_DIR = "./";
-var DEFAULT_FILENAME = exports.DEFAULT_FILENAME = "{year}-{authors}-{title}-{filename}";
+var DEFAULT_FILENAME = exports.DEFAULT_FILENAME = "{YY}{MM}-{firstAuthor}-{title}-{filename}";
 var DEFAULT_CONFIG_INIT = exports.DEFAULT_CONFIG_INIT = {
     search: {}
 };
