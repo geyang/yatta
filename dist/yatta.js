@@ -174,7 +174,7 @@ var list = function () {
             };
         }();
 
-        var _options$indexPath3, indexPath, restOpts, index_config, papers, dir, files, spinner, pdfs, choices, search_prompt, prompt, exit, selection;
+        var _options$indexPath3, indexPath, restOpts, index_config, papers, dir, files, spinner, pdfs, choices, search_prompt, prompt, exit, selection, selection_index, filename;
 
         return _regenerator2.default.wrap(function _callee5$(_context5) {
             while (1) {
@@ -205,6 +205,8 @@ var list = function () {
                         }).map(_formatters.full).join('\n');
                         files = (0, _pdf.listFiles)(dir).filter(function (f) {
                             return f.match(/\.pdf$/);
+                        }).map(function (f) {
+                            return (0, _path.join)(dir, f);
                         });
                         spinner = ora('looking through your files...').start();
                         _context5.next = 10;
@@ -252,9 +254,9 @@ var list = function () {
 
                         search_prompt = {
                             message: "local files",
-                            type: "checkbox",
+                            type: "list",
                             find: true,
-                            default: 0,
+                            default: 5,
                             pageSize: choices.length * 2 // when this is less than the real screen estate, it gets very ugly.
                             // todo: measure the actual height of the screen
                         };
@@ -262,7 +264,7 @@ var list = function () {
 
                     case 15:
                         if (!true) {
-                            _context5.next = 22;
+                            _context5.next = 25;
                             break;
                         }
 
@@ -271,15 +273,16 @@ var list = function () {
 
                     case 18:
                         selection = _context5.sent;
+                        selection_index = choices.indexOf(selection);
 
-                        selection.forEach(function (title) {
-                            var filename = files[choices.indexOf(title)];
-                            if (filename) open(filename);
-                        });
+                        search_prompt.default = selection_index;
+                        filename = files[selection_index];
+
+                        if (filename) open(filename);
                         _context5.next = 15;
                         break;
 
-                    case 22:
+                    case 25:
                     case "end":
                         return _context5.stop();
                 }

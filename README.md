@@ -1,6 +1,8 @@
-# yatta 
+# yatta for `arXiv` and `google-scholar`
 
-yatta is a cli tool that manages your paper PDFs. It is `npm` for papers.     [:rocket::beer:Share Me on HackerNews!:fire::star:](https://news.ycombinator.com/submitlink?u=https://github.com/episodeyang/yatta&t=Yatta%20|%20NPM-for-science-papers)
+Yatta is like PIP or NPM for your papers. It is a cli tool that manages your paper bibliography data and PDFs. Think of PIP for your papers, and 100x better. [:rocket::beer:Share Me on HackerNews!:fire::star:](https://news.ycombinator.com/submitlink?u=https://github.com/episodeyang/yatta&t=Yatta%20|%20NPM-for-science-papers)
+
+- **Do you ever wonder what is the *right way* to search arXiv?**
 - **Have you ever wanted to save paper PDFs in your work folder?**
 - **Have you ever had duplicates of the same PDF in different project folders?**
 - **Have you ever wanted to share a list of readings with someone, except that your own PDFs all have personal notes and highlights?**

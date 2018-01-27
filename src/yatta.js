@@ -98,7 +98,7 @@ async function list(options) {
     const papers = index_config.papers || DEFAULT_CONFIG.papers;
     const dir = index_config.dir || DEFAULT_CONFIG.dir;
     papers.map(p => ({...p, authors: p.authors.map(a => a.name)})).map(full).join('\n');
-    const files = listFiles(dir).filter(f => f.match(/\.pdf$/));
+    const files = listFiles(dir).filter(f => f.match(/\.pdf$/)).map(f => pathJoin(dir, f));
     const spinner = ora('looking through your files...').start();
     const pdfs = await Promise.all(files.map(async function (f) {
         try {
