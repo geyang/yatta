@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.DEFAULT_CONFIG = exports.DEFAULT_CONFIG_INIT = exports.DEFAULT_FILENAME = exports.DEFAULT_DIR = exports.ENTRY_LIMIT = exports.INDEX_PATH = undefined;
+exports.DEFAULT_RC = exports.DEFAULT_CONFIG = exports.DEFAULT_CONFIG_INIT = exports.DEFAULT_FILENAME = exports.DEFAULT_LIB = exports.DEFAULT_DIR = exports.ENTRY_LIMIT = exports.INDEX_PATH = exports.RC_PATH = undefined;
 
 var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
 
@@ -43,8 +43,10 @@ exports.dot_update = dot_update;
 exports.url2fn = url2fn;
 exports.curl = curl;
 exports.load_index = load_index;
-exports.dump_index = dump_index;
-exports.init_index = init_index;
+exports.dump = dump;
+exports.rc_exist = rc_exist;
+exports.init_rc = init_rc;
+exports.create_index = create_index;
 exports.update_index = update_index;
 
 var _chalk = require("chalk");
@@ -74,6 +76,10 @@ var _backends = require("./backends");
 var backends = _interopRequireWildcard(_backends);
 
 var _pdfjsDist = require("pdfjs-dist");
+
+var _os = require("os");
+
+var os = _interopRequireWildcard(_os);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -131,10 +137,12 @@ function curl(url, targetPath) {
 // curl ("https://arxiv.org/pdf/1606.04460", "test.pdf");
 
 
+var RC_PATH = exports.RC_PATH = _path2.default.join(os.homedir(), ".yattarc.yml");
 var INDEX_PATH = exports.INDEX_PATH = "yatta.yml";
 var ENTRY_LIMIT = exports.ENTRY_LIMIT = 15;
 var DEFAULT_DIR = exports.DEFAULT_DIR = "./";
-var DEFAULT_FILENAME = exports.DEFAULT_FILENAME = "{YY}{MM}-{firstAuthor}-{title}-{filename}";
+var DEFAULT_LIB = exports.DEFAULT_LIB = _path2.default.join(os.homedir(), "Dropbox/papers");
+var DEFAULT_FILENAME = exports.DEFAULT_FILENAME = "{YY}{MM}-{title}-{firstAuthor}-{filename}";
 var DEFAULT_CONFIG_INIT = exports.DEFAULT_CONFIG_INIT = {
     search: {}
 };
@@ -147,6 +155,9 @@ var DEFAULT_CONFIG = exports.DEFAULT_CONFIG = {
         source: backends.ARXIV
     },
     papers: []
+};
+var DEFAULT_RC = exports.DEFAULT_RC = {
+    lib: DEFAULT_LIB
 };
 
 function load_index(indexPath) {
@@ -168,13 +179,20 @@ function load_index(indexPath) {
     return index;
 }
 
-function dump_index(indexPath, index) {
+function dump(indexPath, index) {
     var content = _jsYaml2.default.safeDump(index, { 'styles': { '!!undefined': 'null' }, 'sortKeys': true });
     _fsExtra2.default.writeFileSync(indexPath, content);
 }
 
-function init_index(indexPath) {
-    dump_index(indexPath, DEFAULT_CONFIG_INIT);
+function rc_exist() {
+    return _fsExtra2.default.existsSync(RC_PATH);
+}
+function init_rc() {
+    dump(RC_PATH, DEFAULT_RC);
+}
+
+function create_index(indexPath) {
+    dump(indexPath, DEFAULT_CONFIG_INIT);
 }
 
 function update_index(indexPath, entry) {
@@ -189,7 +207,7 @@ function update_index(indexPath, entry) {
     // todo: use dictionary instead;
     if (!index.papers) index.papers = [];
     if (!!entry) index.papers = [].concat((0, _toConsumableArray3.default)(index.papers), [entry]);
-    dump_index(indexPath, index);
+    dump(indexPath, index);
 }
 
 // update_index(".yatta.yml", {name: "test"});

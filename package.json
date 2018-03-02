@@ -1,6 +1,6 @@
 {
   "name": "yatta",
-  "version": "0.15.2",
+  "version": "0.15.4",
   "description": "NPM for your papers: a cli tool that manages your references",
   "main": "dist/yatta.js",
   "scripts": {
@@ -10,7 +10,8 @@
     "patch": "npm run pre-publish && npm version patch && npm publish",
     "minor": "npm run pre-publish && npm version minor && npm publish",
     "major": "npm run pre-publish && npm version major && npm publish",
-    "dev:install": "npm install -g ./",
+    "dev:uninstall": "npm uninstall -g yatta",
+    "dev:install": "npm run build && npm install -g ./",
     "dev:update": "npm cache clean --force && npm install -g yatta"
   },
   "preferGlobal": true,
@@ -74,6 +75,7 @@
     "js-pyformat": "0.0.2",
     "js-yaml": "latest",
     "meow": "^4.0.0",
+    "mkdirp": "^0.5.1",
     "moment": "^2.20.1",
     "open": "0.0.5",
     "opn": "^5.2.0",

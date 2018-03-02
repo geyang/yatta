@@ -59,18 +59,67 @@ There are two ways to get help:
     yatta <command> --help
     ```
     ![./figures/help.png](./figures/help.png)
-    
+
 2. Alternatively, a quick look at the source would also be helpful: [./src/yatta.js](./src/yatta.js).
 
 ## Plans
 
+### Design
+
+- `yatta search`
+- `yatta sync` no.
+
+### Issues
+
+- [ ] save file under ~/Dropbox/machine learning/papers
+- [ ] save setting under ~/.yatta.yml
+- [ ] save file index under papers/.yatta.index
+- [ ] save bib info inside those PDF
+- [ ] save aliases under yatta.dir
+- [ ] save file signature
+
+### Todo: 
+
+- [ ] use rc.lib_dir instead
+- [ ] ​
+
+#### Done
+
+- [x] make a list of problems
+
+#### 2018-02-22
+
+default behavior:
+
+1. first run, setup ~/.yatta.yml and ~/.yatta folder. folder contains `all `, `papers`, `searches`, `authors` etc.
+2. save papers under papers, alias in searches folder.
+3. when searching under project folder, save alias/symbolic link under project folder. Problem, dropbox does not sync this.
+
+Trade-offs:
+
+- **alias in project folder**: dropbox does not sync. Pro: all papers safe in global folder.
+- **alias in global**, save file in project directory: global is basically useless as archive now. Pro: could easily modify files and view them on dropbox. Easy to delete files assuming papers not found (through global alias) can be safely deleted.
+- files in global, index in project, alias for convenience
+  - mobile:
+     - can view and edit files, can't see context. context is just bunch of dead links
+     - can browse local context inside `_papers`, otherwise no. `yatta shadow` creates this _papers folder from global, index etc.
+   - organizing files: 
+      - in finder, drag and drop alias. `yatta sync` indeces local files. Yaml index of location of files. This is useful for `escherpad` app too.
+
+Editing happens equally frequently from iPads and desktop.
+
+---
+
+#### 2018-02-01
+
 stuff to think about:
+
 - managing papers is about organizing them. Make it easy to:
     - search for papers
     - organize papers into folders?
     - remove useless papers?
-I think if you do search well, everything else won't matter that much. So we could forget about `managing` as long it is easy for other devices to view the papers.
-**limiter**: don't think of managing papers. Just put them under a folder for now. But make is easy to search under current scope.
+      I think if you do search well, everything else won't matter that much. So we could forget about `managing` as long it is easy for other devices to view the papers.
+      **limiter**: don't think of managing papers. Just put them under a folder for now. But make is easy to search under current scope.
 
 ### TODOs
 

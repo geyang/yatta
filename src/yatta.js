@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 import {
-    curl, DEFAULT_CONFIG, dot, dot_update, dump_index, ENTRY_LIMIT, INDEX_PATH,
-    init_index, load_index, update_index, url2fn
+    curl, DEFAULT_CONFIG, dot, dot_update, dump, ENTRY_LIMIT, INDEX_PATH,
+    create_index, load_index, RC_PATH, update_index, url2fn, init_rc, rc_exist, DEFAULT_RC
 } from "./utils";
 import {sleep} from "./utils";
 import * as backends from "./backends";
 import {ERR_BOT} from "./backends/google-scholar";
 import {join as pathJoin} from "path";
-import {pdfResolver} from "./resolver";
+import {pdfResolver} from "./scratch/old-unused/resolver";
 import {readPdf, listFiles} from "./modules/pdf";
 import {full, simple} from "./formatters";
 
@@ -28,14 +28,24 @@ import format from 'js-pyformat';
 
 const EXIT_KEYS = ["escape", "q"];
 
+async function init(options) {
+    console.log(RC_PATH);
+    if (rc_exist(RC_PATH))
+        console.error(`global rc file ${RC_PATH} already exists.`);
+    else {
+        init_rc();
+        console.log(chalk.green("✓"), `global rc file ${RC_PATH} is created!`);
+    }
+    return process.exit()
+}
 
 /** yatta init --index-path ".yatta" */
-async function init(options) {
+async function create(options) {
     const {indexPath = INDEX_PATH, ...restOpts} = options;
     if (fs.existsSync(indexPath))
         console.error(`index file ${indexPath} already exists.`);
     else {
-        init_index(indexPath);
+        create_index(indexPath);
         console.log(chalk.green("✓"), `index file ${indexPath} is created!`);
     }
     return process.exit()
@@ -47,8 +57,7 @@ async function init(options) {
  * */
 async function set(key, value, options) {
     if (!key) {
-        const {papers, ...rest} = load_index(indexPath);
-        console.log(rest);
+        console.log("need to supply dot separated key and update value");
         process.exit();
     }
     //todo: use schema instead of this crapy hack
@@ -56,14 +65,18 @@ async function set(key, value, options) {
     else if (value === 'false') value = false;
     else if (value.match(/^[0-9]*(\.)[.0-9]*$/)) value = parseFloat(value);
 
-    if (typeof dot(DEFAULT_CONFIG, key.split('.')) === 'undefined') {
+    const {...restOpts} = options;
+    const indexPath = (options.global ? RC_PATH : INDEX_PATH);
+    const default_conf = options.global ? DEFAULT_RC : DEFAULT_CONFIG;
+    console.log(indexPath);
+
+    if (typeof dot(default_conf, key.split('.')) === 'undefined') {
         console.error(`dot.key ${key} does not exist in the default configuration!`);
         process.exit();
     }
-    const {indexPath = INDEX_PATH, ...restOpts} = options;
     let spinner = ora(`setting ${chalk.blue(indexPath)} file`).start();
     if (!fs.existsSync(indexPath)) {
-        spinner.fail(`index file ${indexPath} does not exist. Use yatta init to initialize the file first!`);
+        spinner.fail(`index file ${indexPath} does not exist. Use yatta ${(options.global ? "init" : "create")} to initialize the file first!`);
         process.exit()
     }
     if (key === 'dir') try {
@@ -74,11 +87,12 @@ async function set(key, value, options) {
         process.exit()
     }
     let index = load_index(indexPath);
+    console.log(index);
     try {
         spinner.start(`updating index file ${indexPath}`);
         //todo: need to add casting, s.a. "true" => true
         let newIndex = dot_update(index, key.split('.'), value);
-        dump_index(indexPath, newIndex);
+        dump(indexPath, newIndex);
         spinner.succeed(chalk.green("✓"), `index file ${indexPath} has been updated!`);
         const {papers, ...rest} = newIndex;
         console.log(rest);
@@ -155,11 +169,13 @@ async function list(options) {
 }
 
 async function search(query, options) {
+    let global_config = load_index(RC_PATH);
     let index_config = load_index(options.indexPath);
     index_config = {
         ...DEFAULT_CONFIG, ...index_config,
         search: {...DEFAULT_CONFIG.search, ...index_config.search, ...options}
     };
+    const lib_dir = global_config.lib;
     const dir = index_config.dir;
     options = index_config.search;
     if (!options.limit)
@@ -236,26 +252,38 @@ async function search(query, options) {
             // make this configurable
             const authors = selected.authors.map(a => a.name);
 
-            const fn = pathJoin(dir, format(index_config.filename, {
+            // create file name
+
+            const fn = format(index_config.filename, {
                 ...selected,
                 YY: selected.year ? `0${selected.year % 100}`.slice(-2) : "",
                 MM: selected.month ? `0${selected.month}`.slice(-2) : "",
                 authors: authors.join(', '),
                 firstAuthor: (authors[0] || "NA"),
                 filename: url2fn(url)
-            }));
+            }).replace(/[\\/:*?"<>|]/g, "");
+            const pdf_path = pathJoin(lib_dir, fn);
+            const alias_path = pathJoin(dir, fn);
             try {
-                if (fs.existsSync(fn)) {
+                // alt: look for existing files in the library.
+                if (fs.existsSync(pdf_path)) {
                     spinner.warn(`the file ${fn} already exists! Skipping the download.`);
                 } else {
                     // done: download link resolution:
                     // todo: use unified single spinner for the entire parallel task stack.
-                    spinner.start(`downloading ${url} to ${fn}`);
-                    await curl(url, fn);
-                    spinner.succeed(`saved at ${fn}; ` + chalk.red('If corrupted, go to:') + " " + url);
+                    spinner.start(`downloading ${url} to ${pdf_path}`);
+                    await curl(url, pdf_path);
+                    spinner.succeed(`saved at ${pdf_path}; ` + chalk.red('If corrupted, go to:') + " " + url);
+                }
+                if (fs.existsSync(alias_path)) {
+                    spinner.warn(`the alias ${alias_path} already exists!`);
+                } else {
+                    // todo: use unified single spinner for the entire parallel task stack.
+                    fs.linkSync(pdf_path, alias_path);
+                    spinner.succeed(`saved at link at ${alias_path}; `);
                 }
                 if (options.open) {
-                    spinner.start(chalk.green(`opening the pdf file ${fn}`));
+                    spinner.start(chalk.green(`opening the pdf file ${alias_path}`));
                     // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
                     await sleep(200);
                     open(fn)
@@ -290,6 +318,11 @@ program
     .action(init);
 
 program
+    .command('create')
+    .option('--index-path <index path>', "path for the yatta.yml index file", INDEX_PATH)
+    .action(create);
+
+program
     .command('list')
     .option('--index-path <index path>', "path for the yatta.yml index file", INDEX_PATH)
     .action(list);
@@ -297,7 +330,8 @@ program
 program
     .command('set [key.path] [value]')
     .description(`modifies the configuration file, located at ${INDEX_PATH} by default. Use dot separated path string as the key.`)
-    .option('--index-path <index path>', `path for the ${INDEX_PATH} index file`, INDEX_PATH)
+    .option('-g, --global', `flag for setting global configs`)
+    // .option('--index-path <index path>', `path for the ${INDEX_PATH} index file`, INDEX_PATH)
     .action(set);
 
 program

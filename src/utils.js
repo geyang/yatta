@@ -7,6 +7,7 @@ import yaml from "js-yaml";
 import fs from "fs-extra";
 import * as backends from "./backends";
 import {PDFJS} from "pdfjs-dist";
+import * as os from "os";
 
 export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -59,10 +60,12 @@ export function curl(url, targetPath) {
 // curl ("https://arxiv.org/pdf/1606.04460", "test.pdf");
 
 
+export const RC_PATH = path.join(os.homedir(), ".yattarc.yml");
 export const INDEX_PATH = "yatta.yml";
 export const ENTRY_LIMIT = 15;
 export const DEFAULT_DIR = "./";
-export const DEFAULT_FILENAME = "{YY}{MM}-{firstAuthor}-{title}-{filename}";
+export const DEFAULT_LIB = path.join(os.homedir(), "Dropbox/papers");
+export const DEFAULT_FILENAME = "{YY}{MM}-{title}-{firstAuthor}-{filename}";
 export const DEFAULT_CONFIG_INIT = {
     search: {}
 };
@@ -75,6 +78,9 @@ export const DEFAULT_CONFIG = {
         source: backends.ARXIV
     },
     papers: []
+};
+export const DEFAULT_RC = {
+    lib: DEFAULT_LIB
 };
 
 export function load_index(indexPath) {
@@ -96,13 +102,20 @@ export function load_index(indexPath) {
     return index
 }
 
-export function dump_index(indexPath, index) {
+export function dump(indexPath, index) {
     const content = yaml.safeDump(index, {'styles': {'!!undefined': 'null'}, 'sortKeys': true});
     fs.writeFileSync(indexPath, content);
 }
 
-export function init_index(indexPath) {
-    dump_index(indexPath, DEFAULT_CONFIG_INIT);
+export function rc_exist(){
+    return fs.existsSync(RC_PATH);
+}
+export function init_rc() {
+    dump(RC_PATH, DEFAULT_RC);
+}
+
+export function create_index(indexPath) {
+    dump(indexPath, DEFAULT_CONFIG_INIT);
 }
 
 export function update_index(indexPath, entry) {
@@ -119,7 +132,7 @@ export function update_index(indexPath, entry) {
     // todo: use dictionary instead;
     if (!index.papers) index.papers = [];
     if (!!entry) index.papers = [...index.papers, entry];
-    dump_index(indexPath, index);
+    dump(indexPath, index);
 }
 
 
