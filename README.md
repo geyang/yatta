@@ -67,21 +67,27 @@ There are two ways to get help:
 ### Design
 
 - `yatta search`
+
+  do NOT save index. index should be volatile. 
+
+  save file content sginature + bib information instead.
+
 - `yatta sync` no.
 
 ### Issues
 
-- [ ] save file under ~/Dropbox/machine learning/papers
-- [ ] save setting under ~/.yatta.yml
-- [ ] save file index under papers/.yatta.index
+- [ ] `yatta index`: indeces files under `rc.lib` directory and save as `~/Dropbox/machine learning/library`
+      - [ ] `library/index.yml`: index of signatures and file paths
+      - [ ] `library/bib.yml`: index of available yml files linked to the signatures
 - [ ] save bib info inside those PDF
 - [ ] save aliases under yatta.dir
 - [ ] save file signature
 
 ### Todo: 
 
-- [ ] use rc.lib_dir instead
-- [ ] ​
+- [x] use rc.lib_dir instead
+- [x] save file under ~/Dropbox/machine learning/papers
+- [x] save setting under ~/.yattarc.yml
 
 #### Done
 
