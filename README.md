@@ -62,6 +62,12 @@ There are two ways to get help:
 
 2. Alternatively, a quick look at the source would also be helpful: [./src/yatta.js](./src/yatta.js).
 
+## To Develop
+
+- Use `dev:install` to install
+- Use `dev:build` to update the local develop binary. You **do NOT need to reinstall!**
+- Use `dev:update` is deprecated.
+
 ## Plans
 
 ### Design
