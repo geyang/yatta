@@ -275,12 +275,18 @@ async function search(query, options) {
                     await curl(url, pdf_path);
                     spinner.succeed(`saved at ${pdf_path}; ` + chalk.red('If corrupted, go to:') + " " + url);
                 }
-                if (fs.existsSync(alias_path)) {
+                try {
+                    fs.lstatSync(alias_path);
                     spinner.warn(`the alias ${alias_path} already exists!`);
-                } else {
-                    // todo: use unified single spinner for the entire parallel task stack.
-                    fs.ensureSymlinkSync(pdf_path, alias_path);
-                    spinner.succeed(`saved at link at ${alias_path}; `);
+                    // todo: make sure that the link if connected to the correct pdf file?
+                } catch (e) {
+                    if (e.name === "ENOENT") {
+                        // todo: use unified single spinner for the entire parallel task stack.
+                        fs.ensureSymlinkSync(pdf_path, alias_path);
+                        spinner.succeed(`saved a symbolic link at ${alias_path};`);
+                    } else {
+                        console.warn(e)
+                    }
                 }
             } catch (e) {
                 spinner.fail(`failed to save ${fn} due to`);
