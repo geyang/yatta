@@ -16,6 +16,10 @@ var _getIterator2 = require("babel-runtime/core-js/get-iterator");
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
+var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
 exports.search = search;
 exports.search_page = search_page;
 exports.search_url = search_url;
@@ -110,6 +114,11 @@ var getKeyValue = function getKeyValue(q) {
 
 function parse_query(query, join, exactOp, andOp, orOp) {
     //todo: if (query.length == 1) { /*this is raw. We do NOT handle this.*/ }
+    query = query.map(function (q) {
+        return q.split('-');
+    }).reduce(function (a, q) {
+        return [].concat((0, _toConsumableArray3.default)(a), (0, _toConsumableArray3.default)(q));
+    });
     var queryContext = [];
     var last = void 0;
     var _iteratorNormalCompletion = true;

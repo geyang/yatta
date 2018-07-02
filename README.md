@@ -65,7 +65,7 @@ There are two ways to get help:
 ## To Develop
 
 - Use `dev:install` to install
-- Use `dev:build` to update the local develop binary. You **do NOT need to reinstall!**
+- Use `build` to update the local develop binary. You **do NOT need to reinstall!**
 - Use `dev:update` is deprecated.
 
 ## Plans
@@ -82,6 +82,7 @@ There are two ways to get help:
 
 ### Issues
 
+- [ ] fix create alias step
 - [ ] `yatta index`: indeces files under `rc.lib` directory and save as `~/Dropbox/machine learning/library`
       - [ ] `library/index.yml`: index of signatures and file paths
       - [ ] `library/bib.yml`: index of available yml files linked to the signatures

@@ -74,6 +74,7 @@
     "inquirer": "^5.0.0",
     "js-pyformat": "0.0.2",
     "js-yaml": "latest",
+    "macos-alias": "^0.2.11",
     "meow": "^4.0.0",
     "mkdirp": "^0.5.1",
     "moment": "^2.20.1",

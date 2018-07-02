@@ -63,6 +63,7 @@ const getKeyValue = (q) => q.match(/([A-z]+):(.+)/).slice(1, 3);
 
 function parse_query(query, join, exactOp, andOp, orOp) {
     //todo: if (query.length == 1) { /*this is raw. We do NOT handle this.*/ }
+    query = query.map(q => q.split('-')).reduce((a, q) => [...a, ...q]);
     const queryContext = [];
     let last;
     for (let q of query) {

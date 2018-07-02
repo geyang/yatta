@@ -68,7 +68,7 @@ async function set(key, value, options) {
     const {...restOpts} = options;
     const indexPath = (options.global ? RC_PATH : INDEX_PATH);
     const default_conf = options.global ? DEFAULT_RC : DEFAULT_CONFIG;
-    console.log(indexPath);
+    // console.log(indexPath);
 
     if (typeof dot(default_conf, key.split('.')) === 'undefined') {
         console.error(`dot.key ${key} does not exist in the default configuration!`);
@@ -87,7 +87,7 @@ async function set(key, value, options) {
         process.exit()
     }
     let index = load_index(indexPath);
-    console.log(index);
+    // console.log(index);
     try {
         spinner.start(`updating index file ${indexPath}`);
         //todo: need to add casting, s.a. "true" => true
@@ -279,18 +279,18 @@ async function search(query, options) {
                     spinner.warn(`the alias ${alias_path} already exists!`);
                 } else {
                     // todo: use unified single spinner for the entire parallel task stack.
-                    fs.linkSync(pdf_path, alias_path);
+                    fs.ensureSymlinkSync(pdf_path, alias_path);
                     spinner.succeed(`saved at link at ${alias_path}; `);
-                }
-                if (options.open) {
-                    spinner.start(chalk.green(`opening the pdf file ${alias_path}`));
-                    // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
-                    await sleep(200);
-                    open(fn)
                 }
             } catch (e) {
                 spinner.fail(`failed to save ${fn} due to`);
                 console.log(e);
+            }
+            if (options.open) {
+                spinner.start(chalk.green(`opening the pdf file ${pdf_path}`));
+                // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
+                await sleep(200);
+                open(pdf_path)
             }
             try {
                 spinner.start("attaching bib entry");

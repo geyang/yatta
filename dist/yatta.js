@@ -114,8 +114,7 @@ var set = function () {
                         restOpts = (0, _objectWithoutProperties3.default)(options, []);
                         indexPath = options.global ? _utils.RC_PATH : _utils.INDEX_PATH;
                         default_conf = options.global ? _utils.DEFAULT_RC : _utils.DEFAULT_CONFIG;
-
-                        console.log(indexPath);
+                        // console.log(indexPath);
 
                         if (typeof (0, _utils.dot)(default_conf, key.split('.')) === 'undefined') {
                             console.error("dot.key " + key + " does not exist in the default configuration!");
@@ -136,8 +135,8 @@ var set = function () {
                             process.exit();
                         }
                         index = (0, _utils.load_index)(indexPath);
+                        // console.log(index);
 
-                        console.log(index);
                         try {
                             spinner.start("updating index file " + indexPath);
                             //todo: need to add casting, s.a. "true" => true
@@ -153,7 +152,7 @@ var set = function () {
                         }
                         process.exit();
 
-                    case 14:
+                    case 12:
                     case "end":
                         return _context3.stop();
                 }
@@ -516,33 +515,32 @@ var search = function () {
                                                     spinner.warn("the alias " + alias_path + " already exists!");
                                                 } else {
                                                     // todo: use unified single spinner for the entire parallel task stack.
-                                                    fs.linkSync(pdf_path, alias_path);
+                                                    fs.ensureSymlinkSync(pdf_path, alias_path);
                                                     spinner.succeed("saved at link at " + alias_path + "; ");
                                                 }
-
-                                                if (!options.open) {
-                                                    _context8.next = 22;
-                                                    break;
-                                                }
-
-                                                spinner.start(chalk.green("opening the pdf file " + alias_path));
-                                                // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
-                                                _context8.next = 21;
-                                                return (0, _utils.sleep)(200);
-
-                                            case 21:
-                                                open(fn);
-
-                                            case 22:
-                                                _context8.next = 28;
+                                                _context8.next = 23;
                                                 break;
 
-                                            case 24:
-                                                _context8.prev = 24;
+                                            case 19:
+                                                _context8.prev = 19;
                                                 _context8.t0 = _context8["catch"](7);
 
                                                 spinner.fail("failed to save " + fn + " due to");
                                                 console.log(_context8.t0);
+
+                                            case 23:
+                                                if (!options.open) {
+                                                    _context8.next = 28;
+                                                    break;
+                                                }
+
+                                                spinner.start(chalk.green("opening the pdf file " + pdf_path));
+                                                // "You can change this setting using either\n\t1. the `-O` flag or \n\t2. the `yatta.yml` config file.");
+                                                _context8.next = 27;
+                                                return (0, _utils.sleep)(200);
+
+                                            case 27:
+                                                open(pdf_path);
 
                                             case 28:
                                                 try {
@@ -560,7 +558,7 @@ var search = function () {
                                                 return _context8.stop();
                                         }
                                     }
-                                }, _callee8, this, [[7, 24]]);
+                                }, _callee8, this, [[7, 19]]);
                             }));
 
                             return function (_x10, _x11) {
